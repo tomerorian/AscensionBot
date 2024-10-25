@@ -24,7 +24,7 @@ for (const folder of commandFolders) {
     // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const command = await import(filePath); // Use dynamic import for ES module
+        const command = (await import(filePath)).default(); // Use dynamic import for ES module
 
         if ('data' in command && 'execute' in command) {
             commands.push(command.data.toJSON());
