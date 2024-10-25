@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co';
@@ -8,10 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildIntegrations
+    Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES
   ],
 });
 
