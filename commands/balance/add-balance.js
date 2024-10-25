@@ -51,6 +51,6 @@ export default {
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
-        await interaction.reply(`Added ${amount} to <@${interaction.user.id}>. New balance is ${newBalance}`);
+        await interaction.reply(`Added ${amount} to <@${user.id}>. New balance is ${newBalance}`);
     },
 };
