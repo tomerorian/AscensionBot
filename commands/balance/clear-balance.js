@@ -44,6 +44,6 @@ export default {
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
-        await interaction.reply(`Cleared ${balance} from <@${user.id}>. New balance is 0`);
+        await interaction.reply(`Cleared ${balance} :coin: from <@${user.id}>. New balance is 0 :coin:`);
     },
 };

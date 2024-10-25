@@ -40,9 +40,9 @@ export default {
         }
         
         if (user !== null) {
-            await interaction.reply(`<@${user.id}> balance is ${balance}`);
+            await interaction.reply(`<@${user.id}> balance is ${balance} :coin:`);
         } else {
-            await interaction.reply(`Your balance is ${balance}`);
+            await interaction.reply(`Your balance is ${balance} :coin:`);
         }
     },
 };
