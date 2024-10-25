@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -13,19 +13,28 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-  await interaction.reply('Hello!');
+  console.log('Interaction received'); // Check if this prints in the console
+
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === 'add-balance') {
-    const amount = data.options[0].value;
+    console.log('add-balance command triggered'); // Check if this prints
 
-    const balanceResponse = await supabase.from('users').select('balance').eq('discord_id', 'gogofo');
-    const balance = balanceResponse.data[0].balance;
+    const amount = interaction.options.getInteger('amount');
 
-    await supabase.from('users').update({ balance: balance + amount }).eq('discord_id', 'gogofo');
-    const dbResponse = await supabase.from('users').select();
+    const balanceResponse = await supabase
+        .from('users')
+        .select('balance')
+        .eq('discord_id', interaction.user.id);
 
-    await interaction.reply(`@${data.id} ${JSON.stringify(data)}`);
+    const balance = balanceResponse.data?.[0]?.balance || 0;
+
+    await supabase
+        .from('users')
+        .update({ balance: balance + amount })
+        .eq('discord_id', interaction.user.id);
+
+    await interaction.reply(`@${interaction.user.tag}, your balance was updated!`);
   }
 });
 
