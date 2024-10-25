@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'tyluekdzdsmpayvazhpf.supabase.co'
+const supabaseUrl = 'tyluekdzdsmpayvazhpf.supabase.com'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
