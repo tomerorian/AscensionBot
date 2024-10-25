@@ -1,6 +1,9 @@
 ﻿import 'dotenv/config';
 import * as fs from 'node:fs';
 import * as path from "node:path";
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
 // Require the necessary discord.js classes
 import {Client, Collection, Events, GatewayIntentBits} from 'discord.js';
@@ -10,7 +13,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
-const foldersPath = path.join("commands/utility", 'commands');
+const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
