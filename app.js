@@ -6,7 +6,7 @@ const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -26,6 +26,10 @@ client.on('interactionCreate', async interaction => {
 
     await interaction.reply(`@${data.id} ${JSON.stringify(data)}`);
   }
+});
+
+client.on('messageCreate', async message => {
+  await message.reply('Hello!');
 });
 
 client.login(process.env.DISCORD_TOKEN);
