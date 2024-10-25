@@ -4,24 +4,19 @@ import Roles from "../../Roles.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('add-balance')
-        .setDescription('Adds balance to a user.')
+        .setName('clear-balance')
+        .setDescription('Clears the balance of a user.')
         .addUserOption(option => option
             .setName('user')
             .setDescription('user to add balance to')
-            .setRequired(true))
-        .addIntegerOption(option => option
-            .setName('amount')
-            .setDescription('Amount to add')
             .setRequired(true)),
     
     async execute(interaction) {
         if (!Roles.hasRole(interaction.member, [Roles.Admin])) {
-            return await interaction.reply('You do not have permission to add balance.');
+            return await interaction.reply('You do not have permission to clear balance.');
         }
         
         const user = interaction.options.getUser('user');
-        const amount = interaction.options.getInteger('amount');
         
         const balanceRes = await supabase
             .from('balances')
@@ -32,7 +27,7 @@ export default {
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
             
-            return await interaction.reply('An error occurred while trying to add balance.');
+            return await interaction.reply('An error occurred while trying to clear balance.');
         }
         
         let balance = 0;
@@ -44,13 +39,11 @@ export default {
         } else {
             balance = balanceRes.data[0].balance;
         }
-        
-        const newBalance = balance + amount;
-        
-        await supabase.from('balances').update({ balance: newBalance })
+
+        await supabase.from('balances').update({ balance: 0 })
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
-        await interaction.reply(`Added ${amount} to <@${interaction.user.id}>. New balance is ${newBalance}`);
+        await interaction.reply(`Cleared ${balance} from <@${interaction.user.id}>. New balance is 0`);
     },
 };
