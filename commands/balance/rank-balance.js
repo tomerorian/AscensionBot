@@ -21,7 +21,7 @@ export default {
             return await interaction.reply('An error occurred while trying to get balance rank.');
         }
 
-        const coinEmoji = message.guild.emojis.cache.find(emoji => emoji.name === 'coin');
+        const coinEmoji = interaction.guild.emojis.cache.find(emoji => emoji.name === 'coin');
         const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} :coin: ${coinEmoji}`).join('\n');
 
         await interaction.reply(reply);
