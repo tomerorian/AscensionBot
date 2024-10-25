@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
+import express, {json} from 'express';
 import {
   InteractionType,
   InteractionResponseType,
@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'http://tsdobdklrfphfllvwsvu.supabase.co/'
+const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -42,14 +42,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'add-balance') {
       const amount = data.options[0].value;
 
-      let { data: members, error } = await supabase
-          .from('members')
+      let { data, error } = await supabase
+          .from('users')
           .select()
       
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `${members}`,
+          content: `${JSON.stringify(data)} ${JSON.stringify(error)}`,
         },
       });
     }
