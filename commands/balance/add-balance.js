@@ -17,7 +17,7 @@ export default {
         const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         
-        const balanceRes = await supabase.from('users').select('balance').eq('discord_id', user);
+        const balanceRes = await supabase.from('users').select('balance').eq('discord_id', user.id);
         
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
@@ -32,7 +32,7 @@ export default {
         const balance = balanceRes.data[0].balance;
         const newBalance = balance + amount;
         
-        await supabase.from('users').update({ balance: newBalance }).eq('discord_id', user);
+        await supabase.from('users').update({ balance: newBalance }).eq('discord_id', user.id);
         
         await interaction.reply(`Added 100 to <@${interaction.user.id}>. New balance is ${newBalance}`);
     },
