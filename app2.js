@@ -1,12 +1,13 @@
 ﻿import 'dotenv/config';
 import * as fs from 'node:fs';
-import * as path from "node:path";
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
 
-// Require the necessary discord.js classes
-import {Client, Collection, Events, GatewayIntentBits} from 'discord.js';
+// Get the resolved path to the file
+const __filename = fileURLToPath(import.meta.url);
+// Get the name of the directory
+const __dirname = path.dirname(__filename);
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -19,9 +20,11 @@ const commandFolders = fs.readdirSync(foldersPath);
 for (const folder of commandFolders) {
     const commandsPath = path.join(foldersPath, folder);
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const command = require(filePath);
+        const command = (await import(filePath)).default; // Use dynamic import for ES module
+
         // Set a new item in the Collection with the key as the command name and the value as the exported module
         if ('data' in command && 'execute' in command) {
             client.commands.set(command.data.name, command);
@@ -32,13 +35,12 @@ for (const folder of commandFolders) {
 }
 
 // When the client is ready, run this code (only once).
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
 client.once(Events.ClientReady, readyClient => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-client.on(Events.InteractionCreate, interaction => {
+// Interaction event
+client.on(Events.InteractionCreate, async interaction => {
     console.log(interaction);
 });
 
