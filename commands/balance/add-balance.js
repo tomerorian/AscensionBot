@@ -33,6 +33,8 @@ export default {
         let balance = 0;
         
         if (balanceRes.data.length === 0 || balanceRes.data[0] === null) {
+            console.log(`creating new user for ${user.id}`);
+            
             await supabase.from('balances').insert([
                 { server_id: interaction.guildId, discord_id: user.id, balance: 0 }
             ]);
