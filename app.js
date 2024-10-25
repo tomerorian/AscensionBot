@@ -42,9 +42,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'add-balance') {
       const amount = data.options[0].value;
 
-      let dbResponse = await supabase
-          .from('users')
-          .select()
+      await supabase.from('users').update({ balance: amount }).eq('id', '1');
+      const dbResponse = await supabase.from('users').select();
       
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
