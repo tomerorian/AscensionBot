@@ -21,7 +21,7 @@ export default {
             return await interaction.reply('An error occurred while trying to get balance rank.');
         }
         
-        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance}`).join('\n');
+        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance}\\:coin:`).join('\n');
 
         await interaction.reply(reply);
     },
