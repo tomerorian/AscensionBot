@@ -1,22 +1,30 @@
+import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 import 'dotenv/config';
-import { InstallGlobalCommands } from './utils.js';
 
-const ADD_BALANCE_COMMAND = {
-  name: 'add-balance',
-  description: 'Add balance to player',
-  type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 1, 2],
-  options: [
-    {
-      type: 4,
-      name: 'amount',
-      description: 'Amount to add',
-      required: true,
-    },
-  ],
-};
+const commands = [
+  new SlashCommandBuilder()
+      .setName('add-balance')
+      .setDescription('Adds balance to a user')
+      .addIntegerOption(option =>
+          option.setName('amount')
+              .setDescription('The amount to add')
+              .setRequired(true)
+      ),
+];
 
-const ALL_COMMANDS = [ADD_BALANCE_COMMAND];
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
-InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+(async () => {
+  try {
+    console.log('Started refreshing global application (/) commands.');
+
+    await rest.put(
+        Routes.applicationCommands(process.env.APP_ID), // Use the global command route
+        { body: commands },
+    );
+
+    console.log('Successfully registered global application (/) commands.');
+  } catch (error) {
+    console.error(error);
+  }
+})();
