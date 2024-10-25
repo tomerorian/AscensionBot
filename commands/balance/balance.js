@@ -1,5 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import supabase from '../../supabaseClient.js'
+import * as Roles from "../../Roles.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -13,6 +14,8 @@ export default {
     async execute(interaction) {
         const user = interaction.options.getUser('user');
         const userId = user?.id ?? interaction.user.id;
+        
+        console.log(Roles.hasRole(interaction.member, Roles.Admin));
 
         const balanceRes = await supabase
             .from('balances')
