@@ -43,7 +43,7 @@ export default {
         if (user !== null) {
             await interaction.reply(`<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`);
         } else {
-            const emoji = interaction.emojis.find(emoji => emoji.name === "silver")
+            const emoji = interaction.client.emojis.find(emoji => emoji.name === "silver")
             await interaction.reply(`Your balance is ${balance} ${emoji}`);
         }
     },
