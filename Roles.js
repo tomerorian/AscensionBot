@@ -1,7 +1,7 @@
 ﻿export default {
     Admin: 'AscensionBotAdmin',
     
-    hasRole(member, role) {
-        return member.roles.cache.some(r => r.name === role);
+    hasRole(member, roles) {
+        return member.roles.cache.some(r => r.name in roles);
     }
 }

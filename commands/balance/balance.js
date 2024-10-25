@@ -15,7 +15,9 @@ export default {
         const user = interaction.options.getUser('user');
         const userId = user?.id ?? interaction.user.id;
         
-        console.log(Roles.hasRole(interaction.member, Roles.Admin));
+        if (user !== null && !Roles.hasRole(interaction.member, [Roles.Admin])) {
+            return await interaction.reply('You do not have permission to check the balance of other users.');
+        }
 
         const balanceRes = await supabase
             .from('balances')
