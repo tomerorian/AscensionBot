@@ -4,9 +4,13 @@ import supabase from '../../supabaseClient.js'
 export default {
     data: new SlashCommandBuilder()
         .setName('add-balance')
-        .setDescription('Adds balance to a user.'),
+        .setDescription('Adds balance to a user.')
+        .addIntegerOption(option => option
+            .setName('amount')
+            .setDescription('Amount to add')
+            .setRequired(true)),
     async execute(interaction) {
-        const amount = interaction.options[0];
+        const amount = interaction.options.getInteger('amount');
         
         const balanceRes = await supabase.from('users').select('balance').eq('discord_id', interaction.user.id);
         
