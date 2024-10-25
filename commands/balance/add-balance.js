@@ -30,13 +30,19 @@ export default {
             return await interaction.reply('An error occurred while trying to add balance.');
         }
         
-        const balance = balanceRes.data.length === 0 || balanceRes.data[0] === null ? 
-            0 : 
-            balanceRes.data[0].balance;
+        let balance = 0;
+        
+        if (balanceRes.data.length === 0 || balanceRes.data[0] === null) {
+            await supabase.from('balances').insert([
+                { server_id: interaction.guildId, discord_id: user.id, balance: 0 }
+            ]);
+        } else {
+            balance = balanceRes.data[0].balance;
+        }
         
         const newBalance = balance + amount;
         
-        await supabase.from('balances').update({ server_id: interaction.guildId, discord_id: user.id, balance: newBalance })
+        await supabase.from('balances').update({ balance: newBalance })
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
