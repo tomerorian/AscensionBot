@@ -1,69 +1,31 @@
 import 'dotenv/config';
-import express, {json} from 'express';
-import {
-  InteractionType,
-  InteractionResponseType,
-  verifyKeyMiddleware,
-} from 'discord-interactions';
-import { getRandomEmoji } from './utils.js';
-
-// Create an express app
-const app = express();
-// Get port, or default to 8080
-const PORT = process.env.PORT || 8080;
+import { Client, GatewayIntentBits } from 'discord.js';
 
 import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-/**
- * Interactions endpoint URL where Discord will send HTTP requests
- * Parse request body and verifies incoming requests using discord-interactions package
- */
-app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
-  // Interaction type and data
-  const { type, data } = req.body;
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-  /**
-   * Handle verification requests
-   */
-  if (type === InteractionType.PING) {
-    return res.send({ type: InteractionResponseType.PONG });
-  }
-
-  /**
-   * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
-   */
-  if (type === InteractionType.APPLICATION_COMMAND) {
-    const { name } = data;
-    
-    if (name === 'add-balance') {
-      const amount = data.options[0].value;
-      
-      const balanceResponse = await supabase.from('users').select('balance').eq('discord_id', 'gogofo');
-      const balance = balanceResponse.data[0].balance; 
-      
-      await supabase.from('users').update({ balance: balance + amount }).eq('discord_id', 'gogofo');
-      const dbResponse = await supabase.from('users').select();
-      
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `@${data.id} ${JSON.stringify(data)}`,
-        },
-      });
-    }
-
-    console.error(`unknown command: ${name}`);
-    return res.status(400).json({ error: 'unknown command' });
-  }
-
-  console.error('unknown interaction type', type);
-  return res.status(400).json({ error: 'unknown interaction type' });
+client.on('ready', () => {
+  console.log(`Logged in as ${client.user.tag}!`);
 });
 
-app.listen(PORT, () => {
-  console.log('Listening on port', PORT);
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === 'add-balance') {
+    const amount = data.options[0].value;
+
+    const balanceResponse = await supabase.from('users').select('balance').eq('discord_id', 'gogofo');
+    const balance = balanceResponse.data[0].balance;
+
+    await supabase.from('users').update({ balance: balance + amount }).eq('discord_id', 'gogofo');
+    const dbResponse = await supabase.from('users').select();
+
+    await interaction.reply(`@${data.id} ${JSON.stringify(data)}`);
+  }
 });
+
+client.login(TOKEN);
