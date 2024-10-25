@@ -6,13 +6,14 @@ const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.on('interactionCreate', async interaction => {
+  await interaction.reply('Hello!');
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === 'add-balance') {
@@ -26,10 +27,6 @@ client.on('interactionCreate', async interaction => {
 
     await interaction.reply(`@${data.id} ${JSON.stringify(data)}`);
   }
-});
-
-client.on('messageCreate', async message => {
-  await message.reply('Hello!');
 });
 
 client.login(process.env.DISCORD_TOKEN);
