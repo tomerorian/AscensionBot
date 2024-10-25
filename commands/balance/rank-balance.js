@@ -12,6 +12,7 @@ export default {
             .from('balances')
             .select('balance,discord_id')
             .eq('server_id', interaction.guildId)
+            .neq('balance', 0)
             .order('balance', { ascending: false })
             .limit(10);
 
