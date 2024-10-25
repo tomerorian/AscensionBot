@@ -6,6 +6,8 @@ export default {
         .setName('add-balance')
         .setDescription('Adds balance to a user.'),
     async execute(interaction) {
+        const amount = interaction.options[0].value;
+        
         const balanceRes = await supabase.from('users').select('balance').eq('discord_id', interaction.user.id);
         
         if (balanceRes.error != null) {
@@ -19,7 +21,7 @@ export default {
         }
         
         const balance = balanceRes.data[0].balance;
-        const newBalance = balance + 100;
+        const newBalance = balance + amount;
         
         await supabase.from('users').update({ balance: newBalance }).eq('discord_id', interaction.user.id);
         
