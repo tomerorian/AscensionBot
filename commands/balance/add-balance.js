@@ -36,7 +36,9 @@ export default {
         
         const newBalance = balance + amount;
         
-        await supabase.from('users').upsert({ server_id: interaction.guildId, discord_id: user.id, balance: newBalance });
+        await supabase.from('balances').update({ server_id: interaction.guildId, discord_id: user.id, balance: newBalance })
+            .eq('server_id', interaction.guildId)
+            .eq('discord_id', user.id);
         
         await interaction.reply(`Added ${amount} to <@${interaction.user.id}>. New balance is ${newBalance}`);
     },
