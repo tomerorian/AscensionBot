@@ -19,30 +19,39 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-  console.log('Interaction received'); // Check if this prints in the console
+  console.log('Received an interaction'); // Log when an interaction is received
 
-  if (!interaction.isChatInputCommand()) return;
+  // Check if the interaction is a command
+  if (!interaction.isCommand()) {
+    console.log('Not a command interaction');
+    return;
+  }
+
+  console.log(`Command received: ${interaction.commandName}`); // Log the command name
 
   if (interaction.commandName === 'add-balance') {
-    console.log('add-balance command triggered'); // Check if this prints
-
     const amount = interaction.options.getInteger('amount');
+    console.log(`Amount received: ${amount}`); // Log the amount received
 
-    const balanceResponse = await supabase
-        .from('users')
-        .select('balance')
-        .eq('discord_id', interaction.user.id);
+    // Your Supabase update logic goes here
+    try {
+      // (Assuming you've set up the Supabase client correctly)
+      const { data, error } = await supabase
+          .from('users')
+          .update({ balance: newBalance }) // Update with your logic
+          .eq('discord_id', interaction.user.id); // Use the actual user's Discord ID
 
-    const balance = balanceResponse.data?.[0]?.balance || 0;
+      if (error) throw error;
 
-    await supabase
-        .from('users')
-        .update({ balance: balance + amount })
-        .eq('discord_id', interaction.user.id);
-
-    await interaction.reply(`@${interaction.user.tag}, your balance was updated!`);
+      await interaction.reply(`Successfully added ${amount} to your balance!`);
+      console.log('Balance updated successfully');
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      await interaction.reply('There was an error updating your balance.');
+    }
   }
 });
+
 
 client.on('messageCreate', async message => {
   console.log('LOLOLOL');
