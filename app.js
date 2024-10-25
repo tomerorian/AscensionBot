@@ -6,7 +6,13 @@ const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co';
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent // Only if your bot reads message content
+  ],
+});
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
