@@ -14,6 +14,10 @@ export default {
             return await interaction.reply('An error occurred while trying to add balance.');
         }
         
+        if (balanceRes.data.length === 0 || balanceRes.data[0] === null) {
+            return await interaction.reply('User not found.');
+        }
+        
         const balance = balanceRes.data[0].balance;
         const newBalance = balance + 100;
         
