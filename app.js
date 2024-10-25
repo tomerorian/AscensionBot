@@ -12,6 +12,11 @@ const app = express();
 // Get port, or default to 8080
 const PORT = process.env.PORT || 8080;
 
+import { createClient } from '@supabase/supabase-js'
+const supabaseUrl = 'tyluekdzdsmpayvazhpf.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
@@ -36,11 +41,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     
     if (name === 'add-balance') {
       const amount = data.options[0].value;
+
+      let { data: members, error } = await supabase
+          .from('members')
+          .select()
       
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Added ${amount}`,
+          content: `${members}`,
         },
       });
     }
