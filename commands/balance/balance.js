@@ -43,7 +43,7 @@ export default {
         if (user !== null) {
             await interaction.reply(`<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`);
         } else {
-            await interaction.reply(`Your balance is ${balance} ${emoji}`);
+            await interaction.reply(`Your balance is ${balance} ${consts.CoinEmoji}`);
         }
     },
 };
