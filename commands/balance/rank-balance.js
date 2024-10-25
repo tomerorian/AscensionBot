@@ -4,7 +4,7 @@ import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('rank-balance')
+        .setName('balance-rank')
         .setDescription('Shows the balance rankings.'),
 
     async execute(interaction) {

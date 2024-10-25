@@ -5,7 +5,7 @@ import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('clear-balance')
+        .setName('balance-clear')
         .setDescription('Clears the balance of a user.')
         .addUserOption(option => option
             .setName('user')
