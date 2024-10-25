@@ -50,5 +50,9 @@ client.on(Events.InteractionCreate, async interaction => {
     console.log(interaction);
 });
 
+client.on(Events.MessageCreate, async message => {
+    console.log('LOLOLOL');
+});
+
 // Log in to Discord with your client's token
 client.login(process.env.DISCORD_TOKEN);
