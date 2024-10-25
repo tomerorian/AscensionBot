@@ -1,6 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import supabase from '../../supabaseClient.js'
-import * as Roles from "../../Roles.js";
+import Roles from "../../Roles.js";
 
 export default {
     data: new SlashCommandBuilder()
