@@ -1,3 +1,3 @@
 ﻿export default {
-    CoinEmoji: ':silver:',
+    CoinEmoji: '<:silver:1299466084855840839>',
 }
