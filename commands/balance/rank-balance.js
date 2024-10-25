@@ -22,7 +22,7 @@ export default {
         }
 
         const coinEmoji = interaction.guild.emojis.cache.find(emoji => emoji.name === 'coin');
-        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} :coin: ${coinEmoji}`).join('\n');
+        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} :coin:`).join('\n');
 
         await interaction.reply(reply);
     },
