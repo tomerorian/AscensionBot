@@ -47,7 +47,7 @@ client.once(Events.ClientReady, readyClient => {
 
 // Interaction event
 client.on(Events.InteractionCreate, async interaction => {
-    console.log(interaction);
+    console.log('12313123');
 });
 
 client.on(Events.MessageCreate, async message => {
