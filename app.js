@@ -44,4 +44,9 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
+client.on('messageCreate', async message => {
+  console.log('LOLOLOL');
+  await message.reply('Ahoy');
+});
+
 client.login(process.env.DISCORD_TOKEN);
