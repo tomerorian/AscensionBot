@@ -5,14 +5,19 @@ export default {
     data: new SlashCommandBuilder()
         .setName('add-balance')
         .setDescription('Adds balance to a user.')
+        .addUserOption(option => option
+            .setName('user')
+            .setDescription('user to add balance to')
+            .setRequired(true))
         .addIntegerOption(option => option
             .setName('amount')
             .setDescription('Amount to add')
             .setRequired(true)),
     async execute(interaction) {
+        const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         
-        const balanceRes = await supabase.from('users').select('balance').eq('discord_id', interaction.user.id);
+        const balanceRes = await supabase.from('users').select('balance').eq('discord_id', user);
         
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
@@ -27,7 +32,7 @@ export default {
         const balance = balanceRes.data[0].balance;
         const newBalance = balance + amount;
         
-        await supabase.from('users').update({ balance: newBalance }).eq('discord_id', interaction.user.id);
+        await supabase.from('users').update({ balance: newBalance }).eq('discord_id', user);
         
         await interaction.reply(`Added 100 to <@${interaction.user.id}>. New balance is ${newBalance}`);
     },
