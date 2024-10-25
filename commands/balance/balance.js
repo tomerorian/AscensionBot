@@ -1,6 +1,7 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import supabase from '../../supabaseClient.js'
-import Roles from "../../Roles.js";
+import roles from "../../roles.js";
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -15,7 +16,7 @@ export default {
         const user = interaction.options.getUser('user');
         const userId = user?.id ?? interaction.user.id;
         
-        if (user !== null && !Roles.hasRole(interaction.member, [Roles.Admin])) {
+        if (user !== null && !roles.hasRole(interaction.member, [roles.Admin])) {
             return await interaction.reply('You do not have permission to check the balance of other users.');
         }
 
@@ -40,9 +41,9 @@ export default {
         }
         
         if (user !== null) {
-            await interaction.reply(`<@${user.id}> balance is ${balance} :coin:`);
+            await interaction.reply(`<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`);
         } else {
-            await interaction.reply(`Your balance is ${balance} :coin:`);
+            await interaction.reply(`Your balance is ${balance} ${consts.CoinEmoji}`);
         }
     },
 };

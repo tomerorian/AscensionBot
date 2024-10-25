@@ -1,6 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import supabase from '../../supabaseClient.js'
-import * as repl from "node:repl";
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -20,9 +20,8 @@ export default {
 
             return await interaction.reply('An error occurred while trying to get balance rank.');
         }
-
-        const coinEmoji = interaction.guild.emojis.cache.find(emoji => emoji.name === 'coin');
-        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} :coin:`).join('\n');
+        
+        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} ${consts.CoinEmoji}`).join('\n');
 
         await interaction.reply(reply);
     },

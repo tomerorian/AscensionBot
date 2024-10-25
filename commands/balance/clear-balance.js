@@ -1,6 +1,7 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import supabase from '../../supabaseClient.js'
-import Roles from "../../Roles.js";
+import roles from "../../roles.js";
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -12,7 +13,7 @@ export default {
             .setRequired(true)),
     
     async execute(interaction) {
-        if (!Roles.hasRole(interaction.member, [Roles.Admin])) {
+        if (!roles.hasRole(interaction.member, [roles.Admin])) {
             return await interaction.reply('You do not have permission to clear balance.');
         }
         
@@ -44,6 +45,6 @@ export default {
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
-        await interaction.reply(`Cleared ${balance} :coin: from <@${user.id}>. New balance is 0 :coin:`);
+        await interaction.reply(`Cleared ${balance} ${consts.CoinEmoji} from <@${user.id}>. New balance is 0 ${consts.CoinEmoji}`);
     },
 };
