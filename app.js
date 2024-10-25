@@ -41,14 +41,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     
     if (name === 'add-balance') {
       const amount = data.options[0].value;
-
+      
+      const balanceResponse = supabase.from('users').select('balance').equal('discord_id', 'gogofo');
       await supabase.from('users').update({ balance: amount }).eq('id', '1');
       const dbResponse = await supabase.from('users').select();
       
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `${JSON.stringify(dbResponse.data)} ${JSON.stringify(dbResponse.error)}`,
+          content: `${JSON.stringify(balanceResponse)}`,
         },
       });
     }
