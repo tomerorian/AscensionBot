@@ -13,11 +13,16 @@ export default {
             .setName('amount')
             .setDescription('Amount to add')
             .setRequired(true)),
+    
     async execute(interaction) {
         const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         
-        const balanceRes = await supabase.from('users').select('balance').eq('discord_id', user.id);
+        const balanceRes = await supabase
+            .from('balances')
+            .select('balance')
+            .eq('server_id', interaction.guildId)
+            .eq('discord_id', user.id);
         
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
@@ -25,15 +30,16 @@ export default {
             return await interaction.reply('An error occurred while trying to add balance.');
         }
         
-        if (balanceRes.data.length === 0 || balanceRes.data[0] === null) {
-            return await interaction.reply('User not found.');
-        }
+        const balance = balanceRes.data.length === 0 || balanceRes.data[0] === null ? 
+            0 : 
+            balanceRes.data[0].balance;
         
-        const balance = balanceRes.data[0].balance;
         const newBalance = balance + amount;
         
-        await supabase.from('users').update({ balance: newBalance }).eq('discord_id', user.id);
+        await supabase.from('users').upsert({ server_id: interaction.guildId, discord_id: user.id, balance: newBalance })
+            .eq('server_id', interaction.guildId)
+            .eq('discord_id', user.id);
         
-        await interaction.reply(`Added 100 to <@${interaction.user.id}>. New balance is ${newBalance}`);
+        await interaction.reply(`Added ${balance} to <@${interaction.user.id}>. New balance is ${newBalance}`);
     },
 };
