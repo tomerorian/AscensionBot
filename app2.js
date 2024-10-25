@@ -47,7 +47,7 @@ client.once(Events.ClientReady, readyClient => {
 
 // Interaction event
 client.on(Events.InteractionCreate, async interaction => {
-    console.log('12313123');
+    interaction.reply('Pong!');
 });
 
 client.on(Events.MessageCreate, async message => {
