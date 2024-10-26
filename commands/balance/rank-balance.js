@@ -19,7 +19,7 @@ export default {
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
 
-            return await interaction.reply('An error occurred while trying to get balance rank.');
+            return await interaction.reply({ content: 'An error occurred while trying to get balance rank.', ephemeral: true });
         }
         
         const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');

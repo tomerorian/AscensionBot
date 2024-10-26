@@ -17,7 +17,7 @@ export default {
         const userId = user?.id ?? interaction.user.id;
         
         if (user !== null && !roles.hasRole(interaction.member, [roles.Admin])) {
-            return await interaction.reply('You do not have permission to check the balance of other users.');
+            return await interaction.reply({ content: 'You do not have permission to check the balance of other users.', ephemeral: true });
         }
 
         const balanceRes = await supabase
@@ -29,7 +29,7 @@ export default {
         if (balanceRes.error !== null) {
             console.log(balanceRes.error.message);
 
-            return await interaction.reply('An error occurred while trying to find the balance.');
+            return await interaction.reply({ content: 'An error occurred while trying to find the balance.', ephemeral: true });
         }
 
         let balance = 0;

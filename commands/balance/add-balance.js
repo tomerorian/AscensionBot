@@ -18,7 +18,7 @@ export default {
     
     async execute(interaction) {
         if (!roles.hasRole(interaction.member, [roles.Admin])) {
-            return await interaction.reply('You do not have permission to add balance.');
+            return await interaction.reply({ content: 'You do not have permission to add balance.', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -32,8 +32,8 @@ export default {
         
         if (balanceRes.error != null) {
             console.log(balanceRes.error.message);
-            
-            return await interaction.reply('An error occurred while trying to add balance.');
+
+            return await interaction.reply({ content: 'An error occurred while trying to add balance.', ephemeral: true });
         }
         
         let balance = 0;
