@@ -40,10 +40,14 @@ export default {
             balance = balanceRes.data[0].balance;
         }
         
+        let reply = '';
+        
         if (user !== null) {
-            await interaction.reply(`<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`);
+            reply = `<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`;
         } else {
-            await interaction.reply(`Your balance is ${balance} ${consts.CoinEmoji}`);
+            reply = `Your balance is ${balance} ${consts.CoinEmoji}`;
         }
+
+        await interaction.reply({ content: reply, ephemeral: true });
     },
 };

@@ -24,6 +24,6 @@ export default {
         
         const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} ${consts.CoinEmoji}`).join('\n');
 
-        await interaction.reply(reply);
+        await interaction.reply({ content: reply, ephemeral: true });
     },
 };
