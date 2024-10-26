@@ -43,9 +43,9 @@ export default {
         let reply = '';
         
         if (user !== null) {
-            reply = `<@${user.id}> balance is ${balance} ${consts.CoinEmoji}`;
+            reply = `<@${user.id}> balance is ${balance.toLocaleString()} ${consts.CoinEmoji}`;
         } else {
-            reply = `Your balance is ${balance} ${consts.CoinEmoji}`;
+            reply = `Your balance is ${balance.toLocaleString()} ${consts.CoinEmoji}`;
         }
 
         await interaction.reply({ content: reply, ephemeral: true });

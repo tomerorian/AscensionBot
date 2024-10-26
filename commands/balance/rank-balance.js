@@ -22,7 +22,7 @@ export default {
             return await interaction.reply('An error occurred while trying to get balance rank.');
         }
         
-        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance} ${consts.CoinEmoji}`).join('\n');
+        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');
 
         await interaction.reply({ content: reply, ephemeral: true });
     },

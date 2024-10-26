@@ -52,6 +52,6 @@ export default {
             .eq('server_id', interaction.guildId)
             .eq('discord_id', user.id);
         
-        await interaction.reply(`<@${interaction.user.id}> added ${amount} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance} ${consts.CoinEmoji}`);
+        await interaction.reply(`<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}`);
     },
 };
