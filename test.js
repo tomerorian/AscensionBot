@@ -4,8 +4,13 @@ import tesseract from 'node-tesseract-ocr';
 // Preprocessing function
 async function preprocessImage(inputPath, outputPath) {
     await sharp(inputPath)
-        .resize({ width: 800 }) // Resize to a suitable width
+        .resize({ width: 800 }) // Adjust width as needed
         .grayscale() // Convert to grayscale
+        .modulate({
+            brightness: 1.2, // Increase brightness (adjust if necessary)
+            contrast: 2.0, // Increase contrast
+        })
+        .blur(1) // Optional: apply slight blur to reduce noise
         .threshold(128) // Binarize the image
         .toFile(outputPath); // Save the processed image
 }
@@ -20,7 +25,7 @@ async function runOCR(imagePath) {
     // Tesseract options
     const options = {
         lang: 'eng', // Specify the language
-        config: '--psm 6', // Page Segmentation Mode (try different values if needed)
+        config: '--psm 3', // Page Segmentation Mode (try different values if needed)
     };
 
     // Run OCR on the processed image
