@@ -4,15 +4,15 @@ import tesseract from 'node-tesseract-ocr';
 // Preprocessing function
 async function preprocessImage(inputPath, outputPath) {
     await sharp(inputPath)
-        .resize({ width: 800 }) // Adjust width as needed
-        .grayscale() // Convert to grayscale
-        .modulate({
-            brightness: 1.2, // Increase brightness (adjust if necessary)
-            contrast: 2.0, // Increase contrast
-        })
-        .blur(1) // Optional: apply slight blur to reduce noise
-        .threshold(128) // Binarize the image
-        .toFile(outputPath); // Save the processed image
+        .resize({ width: 800 }) // Resize if necessary
+        .raw() // Use raw pixel data
+        .toBuffer()
+        .then(data => {
+            return sharp(data, { raw: { width: 800, height: 600, channels: 3 } }) // Update dimensions based on your image
+                .linear(1.5, -50) // Adjust brightness/contrast; tune these values as needed
+                .threshold(180) // Binarization step; adjust threshold based on text visibility
+                .toFile(outputPath); // Save the processed image
+        });
 }
 
 // Main function to run OCR
