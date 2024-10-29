@@ -1,11 +1,15 @@
-﻿import Tesseract from 'tesseract.js';
+﻿import tesseract from 'node-tesseract-ocr';
 
-Tesseract.recognize('./example.png', 'eng', {
-    logger: m => console.log(m) // Log progress messages
-})
-    .then(({ data: { text } }) => {
-        console.log('Extracted Text:\n', text);
+const config = {
+    lang: "eng",
+    oem: 1,
+    psm: 3,
+}
+
+tesseract.recognize("example.png", config)
+    .then((text) => {
+        console.log("Result:", text)
     })
-    .catch(err => {
-        console.error('Error:\n', err);
-    });
+    .catch((error) => {
+        console.log(error.message)
+    })
