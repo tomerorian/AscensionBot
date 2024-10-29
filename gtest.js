@@ -16,10 +16,10 @@ async function detectText() {
         const [result] = await client.textDetection(fileName);
         const detections = result.textAnnotations;
 
-        if (detections.length > 0) {
+        if (detections.length > 1) { // Ensure there's text detected beyond the full block
             console.log('Detected text:');
-            detections.forEach(text => {
-                console.log(text.description); // Print the detected text
+            detections.slice(1).forEach(text => {
+                console.log(text.description); // Print the detected text line by line
             });
         } else {
             console.log('No text detected.');
