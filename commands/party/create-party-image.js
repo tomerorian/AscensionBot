@@ -40,6 +40,6 @@ export default {
             reply = 'Error during text detection';
         }
 
-        await interaction.reply({ content: reply, ephemeral: true });
+        await interaction.editReply({ content: reply, ephemeral: true });
     },
 };
