@@ -1,5 +1,5 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
-import supabase from '../../supabaseClient.js'
+import supabase from '../../supabase-client.js'
 import consts from "../../consts.js";
 
 export default {
