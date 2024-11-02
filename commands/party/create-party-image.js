@@ -23,7 +23,7 @@ export default {
 
         const partyImage = interaction.options.getAttachment('image');
         
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
         
         let reply = '';
         
