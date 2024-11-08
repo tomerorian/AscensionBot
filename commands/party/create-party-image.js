@@ -1,5 +1,4 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
-import supabase from '../../supabase-client.js'
 import roles from "../../roles.js";
 import imageToTextClient from "../../image-to-text-client.js";
 

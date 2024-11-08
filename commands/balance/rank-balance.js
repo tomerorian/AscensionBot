@@ -1,5 +1,5 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
-import supabase from '../../supabase-client.js'
+import sql from '../../db.js';
 import consts from "../../consts.js";
 
 export default {
@@ -8,22 +8,20 @@ export default {
         .setDescription('Shows the balance rankings.'),
 
     async execute(interaction) {
-        const balanceRes = await supabase
-            .from('balances')
-            .select('balance,discord_id')
-            .eq('server_id', interaction.guildId)
-            .neq('balance', 0)
-            .order('balance', { ascending: false })
-            .limit(10);
+        try {
+            const balanceRes = await sql`
+                SELECT balance, discord_id FROM balances
+                WHERE server_id = ${interaction.guildId} AND balance != 0
+                ORDER BY balance DESC
+                LIMIT 10
+            `;
 
-        if (balanceRes.error != null) {
-            console.log(balanceRes.error.message);
+            const reply = balanceRes.map(x => `<@${x.discord_id}>: ${x.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');
 
-            return await interaction.reply({ content: 'An error occurred while trying to get balance rank.', ephemeral: true });
+            await interaction.reply({ content: reply, ephemeral: true });
+        } catch (error) {
+            console.log(error.message);
+            await interaction.reply({ content: 'An error occurred while trying to get balance rank.', ephemeral: true });
         }
-        
-        const reply = balanceRes.data.map(x => `<@${x.discord_id}>: ${x.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');
-
-        await interaction.reply({ content: reply, ephemeral: true });
     },
 };
