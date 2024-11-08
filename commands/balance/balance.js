@@ -23,14 +23,14 @@ export default {
         let balance = 0;
         try {
             const balanceRes = await sql`
-                SELECT balance FROM balances
+                SELECT balance::numeric FROM balances
                 WHERE server_id = ${interaction.guildId} AND discord_id = ${userId}
             `;
 
             if (balanceRes.length === 0 || balanceRes[0] === null) {
                 balance = 0;
             } else {
-                balance = balanceRes[0].balance;
+                balance = Number(balanceRes[0].balance);
             }
         } catch (error) {
             console.log(error.message);

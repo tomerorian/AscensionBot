@@ -23,7 +23,7 @@ export default {
 
         try {
             const balanceRes = await sql`
-                SELECT balance FROM balances
+                SELECT balance::numeric FROM balances
                 WHERE server_id = ${interaction.guildId} AND discord_id = ${user.id}
             `;
 
@@ -34,7 +34,7 @@ export default {
                     VALUES (${interaction.guildId}, ${user.id}, 0)
                 `;
             } else {
-                balance = balanceRes[0].balance;
+                balance = Number(balanceRes[0].balance);
             }
 
             await sql`
