@@ -1,5 +1,5 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
-import supabase from '../../supabase-client.js'
+import sql from '../../db.js';  // Assuming `db.js` is where you've set up the `postgres` client
 import roles from "../../roles.js";
 import consts from "../../consts.js";
 
@@ -20,24 +20,21 @@ export default {
             return await interaction.reply({ content: 'You do not have permission to check the balance of other users.', ephemeral: true });
         }
 
-        const balanceRes = await supabase
-            .from('balances')
-            .select('balance')
-            .eq('server_id', interaction.guildId)
-            .eq('discord_id', userId);
-
-        if (balanceRes.error !== null) {
-            console.log(balanceRes.error.message);
-
-            return await interaction.reply({ content: 'An error occurred while trying to find the balance.', ephemeral: true });
-        }
-
         let balance = 0;
+        try {
+            const balanceRes = await sql`
+                SELECT balance FROM balances
+                WHERE server_id = ${interaction.guildId} AND discord_id = ${userId}
+            `;
 
-        if (balanceRes.data.length === 0 || balanceRes.data[0] === null) {
-            balance = 0;
-        } else {
-            balance = balanceRes.data[0].balance;
+            if (balanceRes.length === 0 || balanceRes[0] === null) {
+                balance = 0;
+            } else {
+                balance = balanceRes[0].balance;
+            }
+        } catch (error) {
+            console.log(error.message);
+            return await interaction.reply({ content: 'An error occurred while trying to find the balance.', ephemeral: true });
         }
         
         let reply = '';

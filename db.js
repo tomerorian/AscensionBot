@@ -1,11 +1,12 @@
-﻿import { Pool } from 'pg';
+﻿import postgres from 'postgres'
 
-const pool = new Pool({
-    user: process.env.DB_USER,
+const sql = postgres({
     host: 'localhost',
-    database: 'albion',
-    password: process.env.DB_PASSWORD,
     port: 5432,
+    database: 'albion',
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
 });
 
-export default pool;
+// Export the sql instance
+export default sql;
