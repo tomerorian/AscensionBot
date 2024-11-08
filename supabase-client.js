@@ -1,17 +1,8 @@
 ﻿import { createClient } from '@supabase/supabase-js';
 
-//const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co';
-const supabaseUrl = 'http://localhost:5432';
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseUrl = 'https://rthkuqkvbjozjzoabvfh.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY; // Ensure this is set in your environment variables
 
-const supabase = createClient(supabaseUrl, supabaseKey, {
-    db: {
-        user: process.env.DB_USER,
-        host: 'localhost',
-        database: 'albion',
-        password: process.env.DB_PASSWORD,
-        port: 5432,
-    }
-});
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default supabase;
