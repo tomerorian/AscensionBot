@@ -26,6 +26,18 @@ export default {
                 return await interaction.reply({ content: 'You do not have permission to register another user.', ephemeral: true });
             }
 
+            const aliasExists = await sql`
+                SELECT discord_id FROM aliases
+                WHERE server_id = ${interaction.guildId} AND alias = ${name}
+                LIMIT 1
+            `;
+
+            if (aliasExists.length > 0) {
+                const linkedUserId = linkedUser[0]?.discord_id;
+                
+                return await interaction.reply({ content: `The alias "${name}" is already in use on this server by <@${linkedUserId}>.`, ephemeral: true });
+            }
+
             const existingRecord = await sql`
                 SELECT alias FROM aliases
                 WHERE server_id = ${interaction.guildId} AND discord_id = ${targetUser.id}
