@@ -67,7 +67,7 @@ export default {
                 `<@${interaction.user.id}> added a new alias "${name}" for <@${targetUser.id}>.` : 
                 `<@${interaction.user.id}> registered with in-game name "${name}".`;
 
-            await interaction.reply(responseMessage);
+            await interaction.reply({ content: responseMessage, ephemeral: true });
         } catch (error) {
             console.error(error.message);
             await interaction.reply({ content: 'An error occurred while trying to register.', ephemeral: true });
