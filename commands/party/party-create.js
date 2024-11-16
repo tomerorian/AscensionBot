@@ -64,8 +64,8 @@ export default {
                 ? await sql`
                     SELECT alias, discord_id
                     FROM aliases
-                    WHERE alias = ANY(${sql.array(detectedNames)})
-                      AND server_id = ${serverId}
+                    WHERE server_id = ${serverId} 
+                      AND alias ILIKE ANY(${sql.array(detectedNames)})
                   `
                 : [];
 
