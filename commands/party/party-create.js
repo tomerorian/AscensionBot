@@ -46,7 +46,7 @@ export default {
     },
 };
 
-import { SlashCommandBuilder } from 'discord.js';
+// import { SlashCommandBuilder } from 'discord.js';
 // import roles from "../../roles.js";
 // import imageToTextClient from "../../image-to-text-client.js";
 //
