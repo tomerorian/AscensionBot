@@ -33,7 +33,7 @@ export default {
             `;
 
             if (aliasExists.length > 0) {
-                const linkedUserId = linkedUser[0]?.discord_id;
+                const linkedUserId = aliasExists[0]?.discord_id;
                 
                 return await interaction.reply({ content: `The alias "${name}" is already in use on this server by <@${linkedUserId}>.`, ephemeral: true });
             }
