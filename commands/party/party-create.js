@@ -1,5 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
+import roles from "../../roles.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -17,6 +18,13 @@ export default {
         const serverId = interaction.guildId;
         const creatorId = interaction.user.id;
 
+        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+            return await interaction.reply({
+                content: 'You do not have permission to create a party.',
+                ephemeral: true
+            });
+        }
+        
         try {
             const existingParty = await sql`
                 SELECT 1 FROM parties
