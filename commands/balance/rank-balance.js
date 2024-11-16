@@ -26,6 +26,7 @@ export default {
             const reply = `
 Leaderboard:
 ${topBalances.map(x => `<@${x.discord_id}>: ${Number(x.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n')}
+
 Board of Shame:
 ${bottomBalances.map(x => `<@${x.discord_id}>: ${Number(x.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n')}
 `;
