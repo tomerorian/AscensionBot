@@ -24,7 +24,7 @@ export default {
             
             const reply = `
 Guild Owes: ${Number(result.positive_balance).toLocaleString()} ${consts.CoinEmoji}
-Owed to the guild: ${(-Number(result.negative_balance)).toLocaleString()} ${consts.CoinEmoji}
+Owed to the guild: ${Math.abs(Number(result.negative_balance)).toLocaleString()} ${consts.CoinEmoji}
 `;
 
             await interaction.reply({ content: reply, ephemeral: true });
