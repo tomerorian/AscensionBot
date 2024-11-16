@@ -9,14 +9,27 @@ export default {
 
     async execute(interaction) {
         try {
-            const balanceRes = await sql`
+            const topBalances = await sql`
                 SELECT balance::numeric, discord_id FROM balances
-                WHERE server_id = ${interaction.guildId} AND balance != 0
+                WHERE server_id = ${interaction.guildId} AND balance > 0
                 ORDER BY balance DESC
                 LIMIT 10
             `;
 
-            const reply = balanceRes.map(x => `<@${x.discord_id}>: ${Number(x.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n');
+            const bottomBalances = await sql`
+                SELECT balance::numeric, discord_id FROM balances
+                WHERE server_id = ${interaction.guildId} AND balance < 0
+                ORDER BY balance ASC
+                LIMIT 10
+            `;
+
+            const reply = `
+                Leaderboard:
+                ${topBalances.map(x => `<@${x.discord_id}>: ${Number(x.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n')}
+
+                Board of Shame:
+                ${bottomBalances.map(x => `<@${x.discord_id}>: ${Number(x.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n')}
+            `;
 
             await interaction.reply({ content: reply, ephemeral: true });
         } catch (error) {
