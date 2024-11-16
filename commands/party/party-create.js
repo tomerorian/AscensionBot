@@ -35,7 +35,10 @@ export default {
                 VALUES (${serverId}, ${partyName}, ${creatorId})
             `;
 
-            await interaction.reply(`Party "${partyName}" has been successfully created by <@${creatorId}>.`);
+            await interaction.reply({
+                content: `Party "${partyName}" has been successfully created by <@${creatorId}>.`,
+                ephemeral: true
+            });
         } catch (error) {
             console.error(error.message);
             await interaction.reply({
