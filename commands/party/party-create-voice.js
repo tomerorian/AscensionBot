@@ -25,7 +25,7 @@ export default {
         }
 
         const channelId = interaction.member.voice.channelId;
-        const voiceChannel = interaction.guild.channels.get(channelId);
+        const voiceChannel = await interaction.guild.channels.fetch(channelId);
 
         if (!voiceChannel) {
             return await interaction.reply({
