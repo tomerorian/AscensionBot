@@ -57,8 +57,8 @@ export default {
             }
 
             const taxMultiplier = (100 - taxPercentage) / 100;
-            const netAmount = amount * taxMultiplier;
-            const splitAmount = netAmount / members.length;
+            const netAmount = Math.floor(amount * taxMultiplier);
+            const splitAmount = Math.floor(netAmount / members.length);
 
             const updatedBalances = members.map(member => ({
                 discord_id: member.discord_id,
@@ -74,7 +74,7 @@ export default {
             }
 
             await interaction.reply({
-                content: `The amount of ${amount} ${consts.CoinEmoji} has been split among the party members of "${partyName}". Each member received ${splitAmount.toFixed(2)} ${consts.CoinEmoji} after a ${taxPercentage}% tax.`,
+                content: `The amount of ${amount} ${consts.CoinEmoji} has been split among the party members of "${partyName}". Each member received ${splitAmount} ${consts.CoinEmoji} after a ${taxPercentage}% tax.`,
                 ephemeral: false
             });
         } catch (error) {
