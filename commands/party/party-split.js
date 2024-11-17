@@ -47,7 +47,7 @@ export default {
             const members = await sql`
                     SELECT discord_id, balance
                     FROM party_members
-                    WHERE party_id = ${party[0].id} AND isActive = TRUE
+                    WHERE party_id = ${party[0].id} AND is_active = TRUE
             `;
 
             if (members.length === 0) {

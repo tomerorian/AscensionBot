@@ -47,11 +47,11 @@ export default {
             }
 
             const memberRecord = await sql`
-                SELECT isActive, balance FROM party_members
+                SELECT is_active, balance FROM party_members
                 WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
             `;
 
-            if (memberRecord.length === 0 || !memberRecord[0].isActive) {
+            if (memberRecord.length === 0 || !memberRecord[0].is_active) {
                 return await interaction.reply({
                     content: `<@${member.id}> is not an active member of the party "${partyName}".`,
                     ephemeral: true
@@ -70,7 +70,7 @@ export default {
             } else {
                 await sql`
                     UPDATE party_members
-                    SET isActive = FALSE
+                    SET is_active = FALSE
                     WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
                 `;
                 

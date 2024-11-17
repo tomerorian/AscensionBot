@@ -54,12 +54,12 @@ export default {
             }
 
             const memberExists = await sql`
-                SELECT isActive FROM party_members
+                SELECT is_active FROM party_members
                 WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
             `;
 
             if (memberExists.length > 0) {
-                if (memberExists[0].isActive) {
+                if (memberExists[0].is_active) {
                     return await interaction.reply({
                         content: `<@${member.id}> is already an active member of the party "${partyName}".`,
                         ephemeral: true
@@ -68,12 +68,12 @@ export default {
 
                 await sql`
                     UPDATE party_members
-                    SET isActive = TRUE
+                    SET is_active = TRUE
                     WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
                 `;
             } else {
                 await sql`
-                    INSERT INTO party_members (party_id, discord_id, isActive)
+                    INSERT INTO party_members (party_id, discord_id, is_active)
                     VALUES (${party[0].id}, ${member.id}, TRUE)
                 `;
             }

@@ -31,7 +31,7 @@ export default {
             }
 
             const members = await sql`
-                SELECT discord_id, balance, isActive FROM party_members
+                SELECT discord_id, balance, is_active FROM party_members
                 WHERE party_id = ${party[0].id}
             `;
 
@@ -45,7 +45,7 @@ export default {
             const totalBalance = members.reduce((sum, member) => sum + Number(member.balance), 0);
             const memberList = members
                 .map(member =>
-                    `<@${member.discord_id}>: ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji}${member.isActive ? '' : ' (Inactive)'}`
+                    `<@${member.discord_id}>: ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji}${member.is_active ? '' : ' (Inactive)'}`
                 )
                 .join('\n');
 
