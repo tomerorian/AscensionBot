@@ -24,7 +24,7 @@ export default {
             });
         }
 
-        const voiceChannel = interaction.member.voice.channel;
+        const voiceChannel = interaction.member.voice;
 
         if (!voiceChannel) {
             return await interaction.reply({
