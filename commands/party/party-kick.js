@@ -41,25 +41,26 @@ export default {
             const isAdmin = roles.hasRole(interaction.member, [roles.Admin]);
             if (party[0].created_by !== requesterId && !isAdmin) {
                 return await interaction.reply({
-                    content: `You do not have permission to remove members from the party "${partyName}". Only the creator or an admin can manage members.`,
+                    content: `You do not have permission to remove members from the party "${partyName}".`,
                     ephemeral: true
                 });
             }
 
             const memberExists = await sql`
-                SELECT 1 FROM party_members
+                SELECT isActive FROM party_members
                 WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
             `;
 
-            if (memberExists.length === 0) {
+            if (memberExists.length === 0 || !memberExists[0].isActive) {
                 return await interaction.reply({
-                    content: `<@${member.id}> is not a member of the party "${partyName}".`,
+                    content: `<@${member.id}> is not an active member of the party "${partyName}".`,
                     ephemeral: true
                 });
             }
 
             await sql`
-                DELETE FROM party_members
+                UPDATE party_members
+                SET isActive = FALSE
                 WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
             `;
 
