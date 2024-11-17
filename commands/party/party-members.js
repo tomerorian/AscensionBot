@@ -31,7 +31,7 @@ export default {
             }
 
             const members = await sql`
-                SELECT discord_id, balance::numeric FROM party_members
+                SELECT discord_id, balance FROM party_members
                 WHERE party_id = ${party[0].id}
             `;
 
@@ -43,7 +43,7 @@ export default {
             }
 
             const totalBalance = members.reduce((sum, member) => sum + Number(member.balance), 0);
-            const memberList = members.map(member => `<@${member.discord_id}>: ${member.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');
+            const memberList = members.map(member => `<@${member.discord_id}>: ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji}`).join('\n');
 
             await interaction.reply({
                 content: `Members of "${partyName}":\n\n**Total Balance**: ${totalBalance.toLocaleString()} ${consts.CoinEmoji}\n\n${memberList}`,
