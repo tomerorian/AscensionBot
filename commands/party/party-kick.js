@@ -46,28 +46,39 @@ export default {
                 });
             }
 
-            const memberExists = await sql`
-                SELECT isActive FROM party_members
+            const memberRecord = await sql`
+                SELECT isActive, balance FROM party_members
                 WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
             `;
 
-            if (memberExists.length === 0 || !memberExists[0].isActive) {
+            if (memberRecord.length === 0 || !memberRecord[0].isActive) {
                 return await interaction.reply({
                     content: `<@${member.id}> is not an active member of the party "${partyName}".`,
                     ephemeral: true
                 });
             }
 
-            await sql`
-                UPDATE party_members
-                SET isActive = FALSE
-                WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
-            `;
-
-            await interaction.reply({
-                content: `<@${member.id}> has been successfully removed from the party "${partyName}".`,
-                ephemeral: true
-            });
+            if (memberRecord[0].balance === 0) {
+                await sql`
+                    DELETE FROM party_members
+                    WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
+                `;
+                return await interaction.reply({
+                    content: `<@${member.id}> has been removed from the party "${partyName}".`,
+                    ephemeral: true
+                });
+            } else {
+                await sql`
+                    UPDATE party_members
+                    SET isActive = FALSE
+                    WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
+                `;
+                
+                return await interaction.reply({
+                    content: `<@${member.id}> has been deactivated in the party "${partyName}" but their balance remains.`,
+                    ephemeral: true
+                });
+            }
         } catch (error) {
             console.error(error.message);
             await interaction.reply({
