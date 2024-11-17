@@ -73,23 +73,21 @@ export default {
             const foundMembers = [...aliasToIdMap.values()];
             const notFoundNames = detectedNames.filter(name => !aliasToIdMap.has(name));
 
+            foundMembers.push(creatorId);
+
             const party = await sql`
                 INSERT INTO parties (server_id, name, created_by)
                 VALUES (${serverId}, ${partyName}, ${creatorId})
                 RETURNING id
             `;
 
-            if (foundMembers.length > 0) {
-                await sql`
-                    INSERT INTO party_members (party_id, discord_id)
-                    SELECT ${party[0].id}, unnest(${sql.array(foundMembers)})
-                `;
-            }
+            await sql`
+                INSERT INTO party_members (party_id, discord_id)
+                SELECT ${party[0].id}, unnest(${sql.array(foundMembers)})
+            `;
 
             let replyMessage = `Party "${partyName}" has been successfully created.`;
-            if (foundMembers.length > 0) {
-                replyMessage += `\n\nMembers added:\n${foundMembers.map(id => `<@${id}>`).join('\n')}`;
-            }
+            replyMessage += `\n\nMembers added:\n${foundMembers.map(id => `<@${id}>`).join('\n')}`;
             if (notFoundNames.length > 0) {
                 replyMessage += `\n\nNames not found:\n${notFoundNames.join('\n')}`;
             }
