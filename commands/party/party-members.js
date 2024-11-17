@@ -43,10 +43,10 @@ export default {
             }
 
             const totalBalance = members.reduce((sum, member) => sum + Number(member.balance), 0);
-            const memberList = members.map(member => `<@${member.discord_id}>: ${member.balance} ${consts.CoinEmoji}`).join('\n');
+            const memberList = members.map(member => `<@${member.discord_id}>: ${member.balance.toLocaleString()} ${consts.CoinEmoji}`).join('\n');
 
             await interaction.reply({
-                content: `Members of "${partyName}":\n\n**Total Balance**: ${totalBalance} ${consts.CoinEmoji}\n\n${memberList}`,
+                content: `Members of "${partyName}":\n\n**Total Balance**: ${totalBalance.toLocaleString()} ${consts.CoinEmoji}\n\n${memberList}`,
                 ephemeral: false
             });
         } catch (error) {
