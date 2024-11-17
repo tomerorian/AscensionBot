@@ -31,7 +31,7 @@ export default {
             }
 
             const members = await sql`
-                SELECT discord_id, balance FROM party_members
+                SELECT discord_id, balance::numeric FROM party_members
                 WHERE party_id = ${party[0].id}
             `;
 
