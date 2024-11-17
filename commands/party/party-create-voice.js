@@ -50,7 +50,6 @@ export default {
 
             const vcMembers = voiceChannel.members;
             const memberIds = vcMembers.map(member => member.user.id);
-            memberIds.push(creatorId); // Ensure the creator is included in the party.
 
             const party = await sql`
                 INSERT INTO parties (server_id, name, created_by)
