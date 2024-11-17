@@ -53,10 +53,10 @@ export default {
                 if (currentBalance.length === 0) {
                     await sql`
                         INSERT INTO balances (server_id, discord_id, balance)
-                        VALUES (${serverId}, ${member.discord_id}, ${member.balance})
+                        VALUES (${serverId}, ${member.discord_id}, ${Number(member.balance)})
                     `;
                 } else {
-                    const newBalance = Number(currentBalance[0].balance) + member.balance;
+                    const newBalance = Number(currentBalance[0].balance) + Number(member.balance);
                     await sql`
                         UPDATE balances
                         SET balance = ${newBalance}
