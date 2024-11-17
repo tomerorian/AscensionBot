@@ -1,5 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -73,7 +74,7 @@ export default {
             }
 
             await interaction.reply({
-                content: `The amount of ${amount} has been split among the party members of "${partyName}". Each member received ${splitAmount.toFixed(2)} after a ${taxPercentage}% tax.`,
+                content: `The amount of ${amount} ${consts.CoinEmoji} has been split among the party members of "${partyName}". Each member received ${splitAmount.toFixed(2)} ${consts.CoinEmoji} after a ${taxPercentage}% tax.`,
                 ephemeral: false
             });
         } catch (error) {
