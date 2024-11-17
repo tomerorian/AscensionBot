@@ -1,0 +1,88 @@
+﻿import { SlashCommandBuilder } from 'discord.js';
+import sql from '../../db.js';
+import roles from "../../roles.js";
+import consts from "../../consts.js";
+
+export default {
+    data: new SlashCommandBuilder()
+        .setName('party-close')
+        .setDescription('Closes an existing party and transfers balances to the main balance table.')
+        .addStringOption(option =>
+            option
+                .setName('name')
+                .setDescription('The name of the party to close')
+                .setRequired(true)
+        ),
+
+    async execute(interaction) {
+        const partyName = interaction.options.getString('name');
+        const serverId = interaction.guildId;
+
+        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+            return await interaction.reply({
+                content: 'You do not have permission to close a party.',
+                ephemeral: true
+            });
+        }
+
+        await interaction.deferReply({ ephemeral: true });
+
+        try {
+            const party = await sql`
+                SELECT id FROM parties
+                WHERE server_id = ${serverId} AND name = ${partyName}
+            `;
+
+            if (party.length === 0) {
+                return await interaction.editReply({
+                    content: `No party with the name "${partyName}" exists in this server.`
+                });
+            }
+
+            const members = await sql`
+                SELECT discord_id, balance FROM party_members
+                WHERE party_id = ${party[0].id}
+            `;
+
+            for (const member of members) {
+                const currentBalance = await sql`
+                    SELECT balance::numeric FROM balances
+                    WHERE server_id = ${serverId} AND discord_id = ${member.discord_id}
+                `;
+
+                if (currentBalance.length === 0) {
+                    await sql`
+                        INSERT INTO balances (server_id, discord_id, balance)
+                        VALUES (${serverId}, ${member.discord_id}, ${member.balance})
+                    `;
+                } else {
+                    const newBalance = Number(currentBalance[0].balance) + member.balance;
+                    await sql`
+                        UPDATE balances
+                        SET balance = ${newBalance}
+                        WHERE server_id = ${serverId} AND discord_id = ${member.discord_id}
+                    `;
+                }
+            }
+
+            await sql`
+                DELETE FROM party_members
+                WHERE party_id = ${party[0].id}
+            `;
+
+            await sql`
+                DELETE FROM parties
+                WHERE id = ${party[0].id}
+            `;
+
+            await interaction.editReply({
+                content: `The party "${partyName}" has been successfully closed, and all member balances have been transferred.`
+            });
+        } catch (error) {
+            console.error(error.message);
+            await interaction.editReply({
+                content: 'An error occurred while trying to close the party.'
+            });
+        }
+    },
+};
