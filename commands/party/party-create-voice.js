@@ -24,7 +24,8 @@ export default {
             });
         }
 
-        const voiceChannel = interaction.member.voice;
+        const channelId = interaction.member.voice.channelId;
+        const voiceChannel = interaction.guild.channels.get(channelId);
 
         if (!voiceChannel) {
             return await interaction.reply({
