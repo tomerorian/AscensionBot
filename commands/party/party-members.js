@@ -1,10 +1,11 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
         .setName('party-members')
-        .setDescription('Lists the members of a party.')
+        .setDescription('Lists the members of a party and their balances.')
         .addStringOption(option =>
             option
                 .setName('party')
@@ -30,7 +31,7 @@ export default {
             }
 
             const members = await sql`
-                SELECT discord_id FROM party_members
+                SELECT discord_id, balance FROM party_members
                 WHERE party_id = ${party[0].id}
             `;
 
@@ -41,9 +42,11 @@ export default {
                 });
             }
 
-            const memberList = members.map(member => `<@${member.discord_id}>`).join('\n');
+            const totalBalance = members.reduce((sum, member) => sum + Number(member.balance), 0);
+            const memberList = members.map(member => `<@${member.discord_id}>: ${member.balance} ${consts.CoinEmoji}`).join('\n');
+
             await interaction.reply({
-                content: `Members of "${partyName}":\n${memberList}`,
+                content: `Members of "${partyName}":\n\n**Total Balance**: ${totalBalance} ${consts.CoinEmoji}\n\n${memberList}`,
                 ephemeral: false
             });
         } catch (error) {
