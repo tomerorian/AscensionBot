@@ -62,6 +62,13 @@ export default {
                 SELECT ${party[0].id}, unnest(${sql.array(memberIds)})
             `;
 
+            await sql`
+                INSERT INTO player_cache (discord_id, party_name)
+                VALUES (${creatorId}, ${partyName})
+                ON CONFLICT (discord_id)
+                DO UPDATE SET party_name = EXCLUDED.party_name
+            `;
+
             const replyMessage = `Party "${partyName}" has been successfully created.\n\nMembers added:\n${memberIds.map(id => `<@${id}>`).join('\n')}`;
 
             await interaction.editReply({ content: replyMessage });
