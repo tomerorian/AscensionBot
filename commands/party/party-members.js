@@ -51,7 +51,7 @@ export default {
 
             await interaction.reply({
                 content: `Members of "${partyName}":\n\n**Total Balance**: ${totalBalance.toLocaleString()} ${consts.CoinEmoji}\n\n${memberList}`,
-                ephemeral: false
+                ephemeral: true
             });
         } catch (error) {
             console.error(error.message);
