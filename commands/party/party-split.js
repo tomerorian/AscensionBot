@@ -91,7 +91,7 @@ export default {
 
             await interaction.reply({
                 content: `The amount of ${amount.toLocaleString()} ${consts.CoinEmoji} has been split among the party members of "${partyName}". Each member received ${splitAmount.toLocaleString()} ${consts.CoinEmoji} after a ${taxPercentage}% tax.`,
-                ephemeral: false
+                ephemeral: true
             });
         } catch (error) {
             console.error(error.message);
