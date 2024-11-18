@@ -6,17 +6,17 @@ export default {
     data: new SlashCommandBuilder()
         .setName('party-split')
         .setDescription('Splits an amount among party members, with an optional tax.')
-        .addStringOption(option =>
-            option
-                .setName('party')
-                .setDescription('The name of the party')
-                .setRequired(false)
-        )
         .addNumberOption(option =>
             option
                 .setName('amount')
                 .setDescription('The total amount to split')
                 .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName('party')
+                .setDescription('The name of the party')
+                .setRequired(false)
         )
         .addNumberOption(option =>
             option

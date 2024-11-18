@@ -6,17 +6,17 @@ export default {
     data: new SlashCommandBuilder()
         .setName('party-add')
         .setDescription('Adds a member to an existing party.')
-        .addStringOption(option =>
-            option
-                .setName('party')
-                .setDescription('The name of the party')
-                .setRequired(false)
-        )
         .addUserOption(option =>
             option
                 .setName('member')
                 .setDescription('The Discord user to add to the party')
                 .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName('party')
+                .setDescription('The name of the party')
+                .setRequired(false)
         ),
 
     async execute(interaction) {
