@@ -17,7 +17,7 @@ export default {
             .setRequired(true)),
 
     async execute(interaction) {
-        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+        if (!await roles.hasRole(interaction.member, [roles.Admin, roles.BalanceManage])) {
             return await interaction.reply({ content: 'You do not have permission to add balance.', ephemeral: true });
         }
 

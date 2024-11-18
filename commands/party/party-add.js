@@ -26,7 +26,14 @@ export default {
         const requesterId = interaction.user.id;
 
         try {
-            const isAdmin = roles.hasRole(interaction.member, [roles.Admin]);
+            const isAdmin = await roles.hasRole(interaction.member, [roles.Admin]);
+            
+            if (!isAdmin && !await roles.hasRole(interaction.member, [roles.PartyManage])) {
+                return await interaction.reply({
+                    content: 'You do not have permission to add a member to a party.',
+                    ephemeral: true
+                });
+            }
 
             if (!partyName) {
                 const cachedParty = await sql`

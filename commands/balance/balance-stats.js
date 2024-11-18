@@ -9,7 +9,7 @@ export default {
         .setDescription('Shows the balance stats.'),
 
     async execute(interaction) {
-        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+        if (!await roles.hasRole(interaction.member, [roles.Admin])) {
             return await interaction.reply({ content: 'You do not have permission to view balance stats.', ephemeral: true });
         }
         

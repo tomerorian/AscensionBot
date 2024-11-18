@@ -1,6 +1,7 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
 import consts from "../../consts.js";
+import roles from "../../roles.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -33,6 +34,15 @@ export default {
         const requesterId = interaction.user.id;
 
         try {
+            const isAdmin = await roles.hasRole(interaction.member, [roles.Admin]);
+
+            if (!isAdmin && !await roles.hasRole(interaction.member, [roles.PartyManage])) {
+                return await interaction.reply({
+                    content: 'You do not have permission to remove a member from a party.',
+                    ephemeral: true
+                });
+            }
+            
             if (!partyName) {
                 const cachedParty = await sql`
                     SELECT party_name FROM player_cache
@@ -48,13 +58,20 @@ export default {
             }
 
             const party = await sql`
-                SELECT id FROM parties
+                SELECT id, created_by FROM parties
                 WHERE server_id = ${serverId} AND name = ${partyName}
             `;
 
             if (party.length === 0) {
                 return await interaction.reply({
                     content: `No party with the name "${partyName}" exists in this server.`,
+                    ephemeral: true
+                });
+            }
+
+            if (party[0].created_by !== requesterId && !isAdmin) {
+                return await interaction.reply({
+                    content: `You do not have permission to perform split in party "${partyName}".`,
                     ephemeral: true
                 });
             }

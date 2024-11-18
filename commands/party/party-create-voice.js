@@ -17,7 +17,7 @@ export default {
         const serverId = interaction.guildId;
         const creatorId = interaction.user.id;
 
-        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+        if (!await roles.hasRole(interaction.member, [roles.Admin, roles.PartyManage])) {
             return await interaction.reply({
                 content: 'You do not have permission to create a party.',
                 ephemeral: true

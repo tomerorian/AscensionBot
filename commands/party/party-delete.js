@@ -17,9 +17,17 @@ export default {
         const partyName = interaction.options.getString('name');
         const serverId = interaction.guildId;
         const requesterId = interaction.user.id;
-        const isAdmin = roles.hasRole(interaction.member, [roles.Admin]);
 
         try {
+            const isAdmin = await roles.hasRole(interaction.member, [roles.Admin]);
+
+            if (!isAdmin && !await roles.hasRole(interaction.member, [roles.PartyManage])) {
+                return await interaction.reply({
+                    content: 'You do not have permission to delete a party.',
+                    ephemeral: true
+                });
+            }
+            
             const party = await sql`
                 SELECT id, created_by FROM parties
                 WHERE server_id = ${serverId} AND name = ${partyName}

@@ -18,7 +18,7 @@ export default {
         const partyName = interaction.options.getString('name');
         const serverId = interaction.guildId;
 
-        if (!roles.hasRole(interaction.member, [roles.Admin])) {
+        if (!await roles.hasRole(interaction.member, [roles.Admin, roles.BalanceManage])) {
             return await interaction.reply({
                 content: 'You do not have permission to close a party.',
                 ephemeral: true
