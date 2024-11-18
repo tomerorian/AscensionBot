@@ -86,6 +86,13 @@ export default {
                 SELECT ${party[0].id}, unnest(${sql.array(foundMembers)})
             `;
 
+            await sql`
+                INSERT INTO player_cache (discord_id, party_name)
+                VALUES (${creatorId}, ${partyName})
+                ON CONFLICT (discord_id)
+                DO UPDATE SET party_name = EXCLUDED.party_name
+            `;
+
             let replyMessage = `Party "${partyName}" has been successfully created.`;
             replyMessage += `\n\nMembers added:\n${foundMembers.map(id => `<@${id}>`).join('\n')}`;
             if (notFoundNames.length > 0) {

@@ -10,14 +10,29 @@ export default {
             option
                 .setName('party')
                 .setDescription('The name of the party')
-                .setRequired(true)
+                .setRequired(false)
         ),
 
     async execute(interaction) {
-        const partyName = interaction.options.getString('party');
+        let partyName = interaction.options.getString('party');
         const serverId = interaction.guildId;
+        const requesterId = interaction.user.id;
 
         try {
+            if (!partyName) {
+                const cachedParty = await sql`
+                    SELECT party_name FROM player_cache
+                    WHERE discord_id = ${requesterId}
+                `;
+                if (cachedParty.length === 0 || !cachedParty[0].party_name) {
+                    return await interaction.reply({
+                        content: 'You must specify a party name or have a cached party to use this command.',
+                        ephemeral: true
+                    });
+                }
+                partyName = cachedParty[0].party_name;
+            }
+
             const party = await sql`
                 SELECT id FROM parties
                 WHERE server_id = ${serverId} AND name = ${partyName}
@@ -45,8 +60,7 @@ export default {
             const totalBalance = members.reduce((sum, member) => sum + Number(member.balance), 0);
             const memberList = members
                 .map(member =>
-                    `<@${member.discord_id}>: ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji}${member.is_active ? '' : ' (Inactive)'}`
-                )
+                    `<@${member.discord_id}>: ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji}${member.is_active ? '' : ' (Inactive)'}`)
                 .join('\n');
 
             await interaction.reply({

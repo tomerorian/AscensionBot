@@ -10,7 +10,7 @@ export default {
             option
                 .setName('party')
                 .setDescription('The name of the party')
-                .setRequired(true)
+                .setRequired(false)
         )
         .addUserOption(option =>
             option
@@ -20,20 +20,30 @@ export default {
         ),
 
     async execute(interaction) {
-        const partyName = interaction.options.getString('party');
+        let partyName = interaction.options.getString('party');
         const member = interaction.options.getUser('member');
         const serverId = interaction.guildId;
         const requesterId = interaction.user.id;
 
         try {
             const isAdmin = roles.hasRole(interaction.member, [roles.Admin]);
-            if (!isAdmin) {
-                return await interaction.reply({
-                    content: 'You do not have permission to add members to a party.',
-                    ephemeral: true
-                });
+
+            if (!partyName) {
+                const cachedParty = await sql`
+                    SELECT party_name FROM player_cache
+                    WHERE discord_id = ${requesterId}
+                `;
+
+                if (cachedParty.length === 0 || !cachedParty[0].party_name) {
+                    return await interaction.reply({
+                        content: 'You must specify a party name.',
+                        ephemeral: true
+                    });
+                }
+
+                partyName = cachedParty[0].party_name;
             }
-            
+
             const party = await sql`
                 SELECT id, created_by FROM parties
                 WHERE server_id = ${serverId} AND name = ${partyName}
