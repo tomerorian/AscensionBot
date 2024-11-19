@@ -64,16 +64,16 @@ export default {
                         WHERE server_id = ${serverId} AND discord_id = ${member.discord_id}
                     `;
                 }
-            }
 
-            await logBalanceChange({
-                serverId: serverId,
-                sourceUserId: interaction.user.id,
-                targetUserId: member.discord_id,
-                amount: Number(member.balance),
-                reason: 'party-close',
-                comment: `Party "${partyName}" was closed`
-            });
+                await logBalanceChange({
+                    serverId: serverId,
+                    sourceUserId: interaction.user.id,
+                    targetUserId: member.discord_id,
+                    amount: Number(member.balance),
+                    reason: 'party-close',
+                    comment: `Party "${partyName}" was closed`
+                });
+            }
 
             await sql`
                 DELETE FROM party_members
