@@ -2,15 +2,16 @@
 import sql from '../../db.js';
 import roles from "../../roles.js";
 import consts from "../../consts.js";
+import logBalanceChange from "../../log-balance-change.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('party-close')
+        .setName('party-accept')
         .setDescription('Closes an existing party and transfers balances to the main balance table.')
         .addStringOption(option =>
             option
                 .setName('name')
-                .setDescription('The name of the party to close')
+                .setDescription('The name of the party to accept')
                 .setRequired(true)
         ),
 
