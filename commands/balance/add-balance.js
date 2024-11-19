@@ -2,6 +2,7 @@
 import sql from '../../db.js';
 import roles from "../../roles.js";
 import consts from "../../consts.js";
+import logBalanceChange from "../../log-balance-change.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -14,7 +15,11 @@ export default {
         .addIntegerOption(option => option
             .setName('amount')
             .setDescription('Amount to add')
-            .setRequired(true)),
+            .setRequired(true))
+        .addStringOption(option => option
+            .setName('comment')
+            .setDescription('Optional comment for the balance change')
+            .setRequired(false)),
 
     async execute(interaction) {
         if (!await roles.hasRole(interaction.member, [roles.Admin, roles.BalanceManage])) {
@@ -23,6 +28,7 @@ export default {
 
         const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
+        const comment = interaction.options.getString('comment') || null;
 
         let balance = 0;
 
@@ -49,6 +55,15 @@ export default {
                 SET balance = ${newBalance}
                 WHERE server_id = ${interaction.guildId} AND discord_id = ${user.id}
             `;
+
+            await logBalanceChange({
+                serverId: interaction.guildId,
+                sourceUserId: interaction.user.id,
+                targetUserId: user.id,
+                amount: amount,
+                reason: 'manual',
+                comment: comment
+            });
 
             await interaction.reply(`<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}`);
         } catch (error) {
