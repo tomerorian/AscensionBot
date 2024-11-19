@@ -25,7 +25,7 @@ export default {
             const partyList = parties.map(party => `- "${party.name}" (created by <@${party.created_by}>)`).join('\n');
             await interaction.reply({
                 content: `Parties in this server:\n${partyList}`,
-                ephemeral: false
+                ephemeral: true
             });
         } catch (error) {
             console.error(error.message);
