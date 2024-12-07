@@ -10,7 +10,7 @@ export default {
         .setDescription('Clears the balance of a user.')
         .addUserOption(option => option
             .setName('user')
-            .setDescription('user to add balance to')
+            .setDescription('user to clear balance for')
             .setRequired(true))
         .addStringOption(option => option
             .setName('comment')
