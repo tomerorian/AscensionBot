@@ -1,0 +1,4 @@
+- party-add: More than one at a time
+- party-accept: Post money added to everyone (like balance-add)
+- balance-log: pagination
+- balance-log: format nicer with commas and icon
