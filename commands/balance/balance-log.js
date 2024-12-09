@@ -1,5 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -58,7 +59,7 @@ export default {
                 `[${log.created_at.toISOString()}] ` +
                 `Source: ${log.source_user_id ? `<@${log.source_user_id}>` : 'System'}, ` +
                 `Target: <@${log.target_user_id}>, ` +
-                `Amount: ${log.amount.toLocaleString()}, ` +
+                `Amount: ${Number(log.amount).toLocaleString()} ${consts.CoinEmoji}, ` +
                 `Reason: ${log.reason}, ` +
                 `Comment: ${log.comment || 'None'}`
             ).join('\n');
