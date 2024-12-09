@@ -3,34 +3,53 @@ import sql from '../../db.js';
 import roles from "../../roles.js";
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName('party-add')
-        .setDescription('Adds a member to an existing party.')
-        .addUserOption(option =>
-            option
-                .setName('member')
-                .setDescription('The Discord user to add to the party')
-                .setRequired(true)
-        )
-        .addStringOption(option =>
-            option
-                .setName('party')
-                .setDescription('The name of the party')
-                .setRequired(false)
-        ),
+    data: (() => {
+        const command = new SlashCommandBuilder()
+            .setName('party-add')
+            .setDescription('Adds members to an existing party.')
+            .addStringOption(option =>
+                option
+                    .setName('party')
+                    .setDescription('The name of the party')
+                    .setRequired(false)
+            );
+        for (let i = 1; i <= 25; i++) {
+            command.addUserOption(option =>
+                option
+                    .setName(`member${i}`)
+                    .setDescription(`Member ${i} to add to the party`)
+                    .setRequired(i === 1) // Only the first member is required
+            );
+        }
+        return command;
+    })(),
 
     async execute(interaction) {
         let partyName = interaction.options.getString('party');
-        const member = interaction.options.getUser('member');
         const serverId = interaction.guildId;
         const requesterId = interaction.user.id;
 
+        const members = [];
+        for (let i = 1; i <= 25; i++) {
+            const member = interaction.options.getUser(`member${i}`);
+            if (member) {
+                members.push(member);
+            }
+        }
+
+        if (members.length === 0) {
+            return await interaction.reply({
+                content: 'You must specify at least one member to add.',
+                ephemeral: true
+            });
+        }
+
         try {
             const isAdmin = await roles.hasRole(interaction.member, [roles.Admin]);
-            
+
             if (!isAdmin && !await roles.hasRole(interaction.member, [roles.PartyManage])) {
                 return await interaction.reply({
-                    content: 'You do not have permission to add a member to a party.',
+                    content: 'You do not have permission to add members to a party.',
                     ephemeral: true
                 });
             }
@@ -62,7 +81,7 @@ export default {
                     ephemeral: true
                 });
             }
-            
+
             if (party[0].created_by !== requesterId && !isAdmin) {
                 return await interaction.reply({
                     content: `You do not have permission to add members to the party "${partyName}".`,
@@ -70,39 +89,50 @@ export default {
                 });
             }
 
-            const memberExists = await sql`
-                SELECT is_active FROM party_members
-                WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
-            `;
+            const alreadyAdded = [];
+            const newlyAdded = [];
 
-            if (memberExists.length > 0) {
-                if (memberExists[0].is_active) {
-                    return await interaction.reply({
-                        content: `<@${member.id}> is already an active member of the party "${partyName}".`,
-                        ephemeral: true
-                    });
-                }
-
-                await sql`
-                    UPDATE party_members
-                    SET is_active = TRUE
+            for (const member of members) {
+                const memberExists = await sql`
+                    SELECT is_active FROM party_members
                     WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
                 `;
-            } else {
-                await sql`
-                    INSERT INTO party_members (party_id, discord_id, is_active)
-                    VALUES (${party[0].id}, ${member.id}, TRUE)
-                `;
+
+                if (memberExists.length > 0) {
+                    if (memberExists[0].is_active) {
+                        alreadyAdded.push(member);
+                    } else {
+                        await sql`
+                            UPDATE party_members
+                            SET is_active = TRUE
+                            WHERE party_id = ${party[0].id} AND discord_id = ${member.id}
+                        `;
+                        newlyAdded.push(member);
+                    }
+                } else {
+                    await sql`
+                        INSERT INTO party_members (party_id, discord_id, is_active)
+                        VALUES (${party[0].id}, ${member.id}, TRUE)
+                    `;
+                    newlyAdded.push(member);
+                }
+            }
+
+            let replyMessage = `The following members were added to the party "${partyName}":\n`;
+            replyMessage += newlyAdded.map(member => `<@${member.id}>`).join('\n') || 'None';
+            if (alreadyAdded.length > 0) {
+                replyMessage += `\n\nThe following members were already active in the party:\n`;
+                replyMessage += alreadyAdded.map(member => `<@${member.id}>`).join('\n');
             }
 
             await interaction.reply({
-                content: `<@${member.id}> has been successfully added to the party "${partyName}".`,
+                content: replyMessage,
                 ephemeral: true
             });
         } catch (error) {
             console.error(error.message);
             await interaction.reply({
-                content: 'An error occurred while trying to add the member to the party.',
+                content: 'An error occurred while trying to add the members to the party.',
                 ephemeral: true
             });
         }
