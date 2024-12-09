@@ -1,5 +1,6 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
+import roles from "../../roles.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -7,6 +8,10 @@ export default {
         .setDescription('Checks if all users in the server have a registered in-game name.'),
 
     async execute(interaction) {
+        if (!await roles.hasRole(interaction.member, [roles.Admin])) {
+            return await interaction.reply({ content: 'You do not have permission to run this command.', ephemeral: true });
+        }
+        
         await interaction.deferReply({ ephemeral: true });
 
         try {
