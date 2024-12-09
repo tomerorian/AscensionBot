@@ -20,14 +20,21 @@ export default {
         .addIntegerOption(option =>
             option
                 .setName('count')
-                .setDescription('Number of logs to display (default: 20, max: 100)')
+                .setDescription('Number of logs to display (default: 10, max: 10)')
+                .setRequired(false)
+        )
+        .addIntegerOption(option =>
+            option
+                .setName('start')
+                .setDescription('How many logs to skip (default: 0)')
                 .setRequired(false)
         ),
 
     async execute(interaction) {
         const source = interaction.options.getUser('source');
         const target = interaction.options.getUser('target');
-        const count = Math.min(interaction.options.getInteger('count') || 20, 100);
+        const count = Math.min(interaction.options.getInteger('count') || 10, 10);
+        const start = interaction.options.getInteger('start') || 0;
 
         try {
             const logs = await sql`
@@ -37,7 +44,7 @@ export default {
                 ${source ? sql`AND source_user_id = ${source.id}` : sql``}
                 ${target ? sql`AND target_user_id = ${target.id}` : sql``}
                 ORDER BY created_at DESC
-                LIMIT ${count}
+                LIMIT ${count} OFFSET ${start}
             `;
 
             if (logs.length === 0) {
