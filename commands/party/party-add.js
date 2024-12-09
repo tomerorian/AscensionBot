@@ -30,7 +30,7 @@ export default {
         const requesterId = interaction.user.id;
 
         const members = [];
-        for (let i = 1; i <= 25; i++) {
+        for (let i = 1; i <= 10; i++) {
             const member = interaction.options.getUser(`member${i}`);
             if (member) {
                 members.push(member);
