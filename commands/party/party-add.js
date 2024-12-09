@@ -13,7 +13,7 @@ export default {
                     .setDescription('The name of the party')
                     .setRequired(false)
             );
-        for (let i = 1; i <= 25; i++) {
+        for (let i = 1; i <= 10; i++) {
             command.addUserOption(option =>
                 option
                     .setName(`member${i}`)
