@@ -6,13 +6,8 @@ export default {
     data: (() => {
         const command = new SlashCommandBuilder()
             .setName('party-add')
-            .setDescription('Adds members to an existing party.')
-            .addStringOption(option =>
-                option
-                    .setName('party')
-                    .setDescription('The name of the party')
-                    .setRequired(false)
-            );
+            .setDescription('Adds members to an existing party.');
+        
         for (let i = 1; i <= 10; i++) {
             command.addUserOption(option =>
                 option
@@ -21,6 +16,14 @@ export default {
                     .setRequired(i === 1) // Only the first member is required
             );
         }
+        
+        command.addStringOption(option =>
+            option
+                .setName('party')
+                .setDescription('The name of the party')
+                .setRequired(false)
+        );
+        
         return command;
     })(),
 
