@@ -1,2 +1,1 @@
-- party-accept: Post money added to everyone (like balance-add)
-- balance-log: format nicer with commas and icon
+- party-accept: Make the log channel a config
