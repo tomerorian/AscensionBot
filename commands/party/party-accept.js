@@ -76,14 +76,14 @@ export default {
                     comment: `Party "${partyName}" was closed`
                 });
 
-                const logChannel = interaction.guild.channels.cache.get(logChannelId);
-                if (logChannel) {
-                    await logChannel.send(
-                        `<@${interaction.user.id}> added ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji} to <@${member.discord_id}>.`
-                    );
-                } else {
-                    console.error('Log channel not found.');
-                }
+                // const logChannel = interaction.guild.channels.cache.get(logChannelId);
+                // if (logChannel) {
+                //     await logChannel.send(
+                //         `<@${interaction.user.id}> added ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji} to <@${member.discord_id}>.`
+                //     );
+                // } else {
+                //     console.error('Log channel not found.');
+                // }
             }
 
             await sql`
