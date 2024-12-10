@@ -1,6 +1,7 @@
 ﻿import { SlashCommandBuilder } from 'discord.js';
 import sql from '../../db.js';
 import roles from "../../roles.js";
+import consts from "../../consts.js";
 
 export default {
     data: new SlashCommandBuilder()
