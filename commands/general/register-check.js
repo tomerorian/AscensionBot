@@ -32,7 +32,7 @@ export default {
 
             const unregisteredList = unregisteredWithBalance
                 .map(user => `<@${user.discord_id}>: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
-                .join('\n');
+                .join(', ');
 
             await interaction.editReply({
                 content: `The following users have a balance but have not registered an in-game name:\n${unregisteredList}`
