@@ -44,8 +44,6 @@ export default {
                 SELECT discord_id, balance FROM party_members
                 WHERE party_id = ${party[0].id}
             `;
-
-            const logChannelId = '1300929821945237585';
             
             for (const member of members) {
                 const currentBalance = await sql`
@@ -76,7 +74,7 @@ export default {
                     comment: `Party "${partyName}" was closed`
                 });
 
-                const logChannel = interaction.guild.channels.cache.get(logChannelId);
+                const logChannel = interaction.guild.channels.cache.get(consts.LogChannelId);
                 if (logChannel) {
                     await logChannel.send(
                         `<@${interaction.user.id}> added ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji} to <@${member.discord_id}>.`
