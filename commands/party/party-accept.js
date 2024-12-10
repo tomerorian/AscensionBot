@@ -47,6 +47,8 @@ export default {
             `;
             
             for (const member of members) {
+                if (Number(member.balance) === 0) continue;
+                
                 const currentBalance = await sql`
                     SELECT balance::numeric FROM balances
                     WHERE server_id = ${serverId} AND discord_id = ${member.discord_id}
