@@ -23,7 +23,7 @@ export default {
                 FROM balances b
                 LEFT JOIN aliases a
                 ON b.server_id = a.server_id AND b.discord_id = a.discord_id
-                WHERE b.server_id = ${serverId} AND a.discord_id IS NULL
+                WHERE b.server_id = ${serverId} AND a.discord_id IS NULL AND b.balance != 0
             `;
 
             if (unregisteredWithBalance.length === 0) {
