@@ -4,7 +4,7 @@ import roles from "../../roles.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('check-unregistered-with-balance')
+        .setName('check-registrations')
         .setDescription('Lists all users in the server who have a balance but have not registered an in-game name.'),
 
     async execute(interaction) {
