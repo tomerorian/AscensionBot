@@ -4,8 +4,8 @@ import roles from "../../roles.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('check-registrations')
-        .setDescription('Lists all users in the server who have registered an in-game name.'),
+        .setName('check-unregistered-with-balance')
+        .setDescription('Lists all users in the server who have a balance but have not registered an in-game name.'),
 
     async execute(interaction) {
         if (!await roles.hasRole(interaction.member, [roles.Admin])) {
@@ -17,26 +17,29 @@ export default {
         try {
             const serverId = interaction.guildId;
 
-            const registeredUsers = await sql`
-                SELECT discord_id, alias FROM aliases
-                WHERE server_id = ${serverId}
+            const unregisteredWithBalance = await sql`
+                SELECT b.discord_id, b.balance
+                FROM balances b
+                LEFT JOIN aliases a
+                ON b.server_id = a.server_id AND b.discord_id = a.discord_id
+                WHERE b.server_id = ${serverId} AND a.discord_id IS NULL
             `;
 
-            if (registeredUsers.length === 0) {
-                return await interaction.editReply('No users in the server have registered an in-game name.');
+            if (unregisteredWithBalance.length === 0) {
+                return await interaction.editReply('No users in the server have a balance but are not registered.');
             }
 
-            const registeredList = registeredUsers
-                .map(user => `<@${user.discord_id}>: ${user.alias}`)
-                .join(', ');
+            const unregisteredList = unregisteredWithBalance
+                .map(user => `<@${user.discord_id}>: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
+                .join('\n');
 
             await interaction.editReply({
-                content: `The following users have registered an in-game name:\n${registeredList}`
+                content: `The following users have a balance but have not registered an in-game name:\n${unregisteredList}`
             });
         } catch (error) {
             console.error(error.message);
             await interaction.editReply({
-                content: 'An error occurred while retrieving registrations.'
+                content: 'An error occurred while checking unregistered users with a balance.'
             });
         }
     },
