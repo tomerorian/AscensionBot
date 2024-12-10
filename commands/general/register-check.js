@@ -5,44 +5,38 @@ import roles from "../../roles.js";
 export default {
     data: new SlashCommandBuilder()
         .setName('check-registrations')
-        .setDescription('Checks if all users in the server have a registered in-game name.'),
+        .setDescription('Lists all users in the server who have registered an in-game name.'),
 
     async execute(interaction) {
         if (!await roles.hasRole(interaction.member, [roles.Admin])) {
             return await interaction.reply({ content: 'You do not have permission to run this command.', ephemeral: true });
         }
-        
+
         await interaction.deferReply({ ephemeral: true });
 
         try {
-            const guild = interaction.guild;
-            const members = await guild.members.fetch();
             const serverId = interaction.guildId;
 
-            const memberIds = members.map(member => member.user.id);
-
             const registeredUsers = await sql`
-                SELECT discord_id FROM aliases
-                WHERE server_id = ${serverId} AND discord_id = ANY(${sql.array(memberIds)})
+                SELECT discord_id, alias FROM aliases
+                WHERE server_id = ${serverId}
             `;
 
-            const registeredIds = new Set(registeredUsers.map(user => user.discord_id));
-
-            const unregisteredMembers = members.filter(member => !registeredIds.has(member.user.id));
-
-            if (unregisteredMembers.size === 0) {
-                return await interaction.editReply('All users in the server have a registered in-game name.');
+            if (registeredUsers.length === 0) {
+                return await interaction.editReply('No users in the server have registered an in-game name.');
             }
 
-            const unregisteredList = unregisteredMembers.map(member => `<@${member.user.id}>`).join('\n');
+            const registeredList = registeredUsers
+                .map(user => `<@${user.discord_id}>: ${user.alias}`)
+                .join(', ');
 
             await interaction.editReply({
-                content: `The following users do not have a registered in-game name:\n${unregisteredList}`
+                content: `The following users have registered an in-game name:\n${registeredList}`
             });
         } catch (error) {
             console.error(error.message);
             await interaction.editReply({
-                content: 'An error occurred while checking registrations.'
+                content: 'An error occurred while retrieving registrations.'
             });
         }
     },
