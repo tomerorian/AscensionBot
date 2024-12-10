@@ -3,6 +3,7 @@ import sql from '../../db.js';
 import roles from "../../roles.js";
 import consts from "../../consts.js";
 import logBalanceChange from "../../log-balance-change.js";
+import sendLogMessage from "../../send-log-message.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -65,7 +66,13 @@ export default {
                 comment: comment
             });
 
-            await interaction.reply(`<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}`);
+            const message = `<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}`;
+            await interaction.reply({
+                content: message,
+                ephemeral: true
+            });
+            
+            await sendLogMessage(interaction, message);
         } catch (error) {
             console.log(error.message);
             await interaction.reply({ content: 'An error occurred while trying to add balance.', ephemeral: true });

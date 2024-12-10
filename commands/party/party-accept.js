@@ -3,6 +3,7 @@ import sql from '../../db.js';
 import roles from "../../roles.js";
 import consts from "../../consts.js";
 import logBalanceChange from "../../log-balance-change.js";
+import sendLogMessage from "../../send-log-message.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -74,14 +75,7 @@ export default {
                     comment: `Party "${partyName}" was closed`
                 });
 
-                const logChannel = interaction.guild.channels.cache.get(consts.LogChannelId);
-                if (logChannel) {
-                    await logChannel.send(
-                        `<@${interaction.user.id}> added ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji} to <@${member.discord_id}>.`
-                    );
-                } else {
-                    console.error('Log channel not found.');
-                }
+                await sendLogMessage(interaction, `<@${interaction.user.id}> added ${Number(member.balance).toLocaleString()} ${consts.CoinEmoji} to <@${member.discord_id}>.`);
             }
 
             await sql`
