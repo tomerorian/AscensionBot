@@ -35,7 +35,7 @@ export default {
                 .join(', ');
 
             await interaction.editReply({
-                content: `The following users have a balance but have not registered an in-game name:\n${unregisteredList}`
+                content: `${unregisteredList}`.slice(0, 2000)
             });
         } catch (error) {
             console.error(error.message);
