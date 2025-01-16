@@ -76,7 +76,7 @@ export default {
                 .join('\n');
 
             const listNotInServer = usersNotInServer
-                .map(user => `User ID: ${user.discord_id}, Balance: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
+                .map(user => `User ID: <@${user.discord_id}> (${user.discord_id}), Balance: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
                 .join('\n');
 
             const message = `**Balance, No roles:**\n${listWithBalance || 'None'}\n\n` +
