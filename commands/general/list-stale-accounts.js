@@ -75,13 +75,15 @@ export default {
                 .join('\n');
 
             const listNotInServer = balancesNotInServer
-                .map(user => `User ID: ${user.discord_id}, Balance: ${Number(user.balance).toLocaleString()} 🪙`)
+                .map(user => `User ID: ${user.discord_id}, Balance: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
                 .join('\n');
 
+            const message = `**With Balance:**\n${listWithBalance || 'None'}\n\n` +
+                `**Not in the server:**\n${listNotInServer || 'None'}\n\n` +
+                `**Without Balance:**\n${listWithoutBalance || 'None'}`;
+            
             await interaction.editReply({
-                content: `**Users with a balance:**\n${listWithBalance || 'None'}\n\n` +
-                    `**Users without a balance:**\n${listWithoutBalance || 'None'}\n\n` +
-                    `**Users with a balance but not in the server:**\n${listNotInServer || 'None'}`
+                content: message.slice(0, 2000)
             });
         } catch (error) {
             console.error(error.message);
