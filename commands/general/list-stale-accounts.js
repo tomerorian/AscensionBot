@@ -6,7 +6,7 @@ import consts from "../../consts.js";
 export default {
     data: new SlashCommandBuilder()
         .setName('list-stale-accounts')
-        .setDescription('Lists users who do not have specific roles, checks their balance, and identifies users not in the server.')
+        .setDescription('Lists users that can be removed.')
         .addRoleOption(option =>
             option
                 .setName('role1')
