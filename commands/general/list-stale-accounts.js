@@ -46,44 +46,45 @@ export default {
                 !rolesToCheck.some(role => role && member.roles.cache.has(role.id))
             );
 
-            const userIds = filteredMembers.map(member => member.user.id);
+            const filteredMemberIds = new Set(filteredMembers.map(member => member.user.id));
 
-            // Fetch balances for users in the server
+            // Fetch balances
             const balances = await sql`
                 SELECT discord_id, balance::numeric
                 FROM balances
                 WHERE server_id = ${interaction.guildId}
             `;
 
-            const usersWithBalance = balances.filter(balance => Number(balance.balance) !== 0);
-            const usersWithoutBalance = userIds.filter(id =>
-                !usersWithBalance.some(balance => balance.discord_id === id)
+            const usersWithBalanceAndWithoutRoles = balances.filter(balance =>
+                filteredMemberIds.has(balance.discord_id) && Number(balance.balance) !== 0
             );
 
-            // Identify users with balance not in the server
-            const balancesNotInServer = usersWithBalance.filter(balance =>
-                !memberIds.has(balance.discord_id)
+            const usersWithoutBalanceAndWithoutRoles = [...filteredMemberIds].filter(id =>
+                !balances.some(balance => balance.discord_id === id)
             );
 
-            const listWithBalance = usersWithBalance
-                .filter(user => memberIds.has(user.discord_id)) // Only those still in the server
+            const usersNotInServer = balances.filter(balance =>
+                !memberIds.has(balance.discord_id) && Number(balance.balance) !== 0
+            );
+
+            const listWithBalance = usersWithBalanceAndWithoutRoles
                 .map(user => `<@${user.discord_id}>: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
                 .join('\n');
 
-            const listWithoutBalance = usersWithoutBalance
+            const listWithoutBalance = usersWithoutBalanceAndWithoutRoles
                 .map(id => `<@${id}>: 0 ${consts.CoinEmoji}`)
                 .join('\n');
 
-            const listNotInServer = balancesNotInServer
+            const listNotInServer = usersNotInServer
                 .map(user => `User ID: ${user.discord_id}, Balance: ${Number(user.balance).toLocaleString()} ${consts.CoinEmoji}`)
                 .join('\n');
 
-            const message = `**With Balance:**\n${listWithBalance || 'None'}\n\n` +
-                `**Not in the server:**\n${listNotInServer || 'None'}\n\n` +
-                `**Without Balance:**\n${listWithoutBalance || 'None'}`;
-            
+            const message = `**Balance, No roles:**\n${listWithBalance || 'None'}\n\n` +
+                `**Balance, Not in the server:**\n${listNotInServer || 'None'}\n\n` +
+                `**No balance, No roles:**\n${listWithoutBalance || 'None'}`;
+
             await interaction.editReply({
-                content: message.slice(0, 2000)
+                content: message.slice(0, 2000) // Limit to Discord's character limit
             });
         } catch (error) {
             console.error(error.message);
