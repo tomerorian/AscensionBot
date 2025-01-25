@@ -16,7 +16,9 @@ export default {
         const user = interaction.options.getUser('user');
         const userId = user?.id ?? interaction.user.id;
         
-        if (user !== null && !await roles.hasRole(interaction.member, [roles.Admin, roles.BalanceManage])) {
+        if (user !== null &&
+            user.id !== interaction.user.id &&    
+            !await roles.hasRole(interaction.member, [roles.Admin, roles.BalanceManage])) {
             return await interaction.reply({ content: 'You do not have permission to check the balance of other users.', ephemeral: true });
         }
 
