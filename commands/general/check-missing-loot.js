@@ -62,7 +62,9 @@ export default {
                 player: item['looted_by__name'],
                 item: item['item_name'],
                 itemId: item['item_id'],
-                quantity: item['quantity']
+                quantity: item['quantity'],
+                fromName: item['looted_from__name'],
+                fromGuild: item['looted_from__guild'],
             }));
 
             const depositedItems = new Set(depositedData.map(item => item['Item']));
@@ -75,7 +77,7 @@ export default {
             }
 
             const missingList = missingEntries
-                .map(entry => `${entry.player} | ${entry.item} | ${entry.itemId} ${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
+                .map(entry => `${entry.player} | ${entry.item} | ${entry.itemId} ${entry.quantity > 1 ? ` x ${entry.quantity}` : ''} | [${entry.fromGuild}] ${entry.fromName}`)
                 .join('\n');
 
             await interaction.editReply(missingList.slice(0, 2000));
