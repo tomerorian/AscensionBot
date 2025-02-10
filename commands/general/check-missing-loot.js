@@ -6,7 +6,7 @@ import path from 'path';
 export default {
     data: new SlashCommandBuilder()
         .setName('check-missing-loot')
-        .setDescription('Lists all looted items that were not deposited.')
+        .setDescription('Lists all looted items that were not deposited, preserving all details.')
         .addAttachmentOption(option =>
             option
                 .setName('looted')
@@ -57,40 +57,24 @@ export default {
             let lootedData = await parseCSV(lootedFilePath, ';');
             let depositedData = await parseCSV(depositedFilePath, '\t');
 
-            lootedData = lootedData.map(item => ({
+            // Ensure we maintain all original fields from looted
+            const lootedEntries = lootedData.map(item => ({
+                player: item['player_name'],
                 item: item['item_name'],
-                amount: parseInt(item['quantity'], 10) || 0
+                quantity: item['quantity']
             }));
 
-            depositedData = depositedData.map(item => ({
-                item: item['Item'],
-                amount: parseInt(item['Amount'], 10) || 0
-            }));
+            const depositedItems = new Set(depositedData.map(item => item['Item']));
 
-            const lootedSummary = lootedData.reduce((acc, { item, amount }) => {
-                acc[item] = (acc[item] || 0) + amount;
-                return acc;
-            }, {});
+            // Filter only entries that are missing from the deposited list
+            const missingEntries = lootedEntries.filter(entry => !depositedItems.has(entry.item));
 
-            const depositedSummary = depositedData.reduce((acc, { item, amount }) => {
-                acc[item] = (acc[item] || 0) + amount;
-                return acc;
-            }, {});
-
-            const missingItems = Object.keys(lootedSummary)
-                .filter(item => lootedSummary[item] > (depositedSummary[item] || 0))
-                .map(item => ({
-                    item,
-                    amount_looted: lootedSummary[item],
-                    amount_deposited: depositedSummary[item] || 0
-                }));
-
-            if (missingItems.length === 0) {
+            if (missingEntries.length === 0) {
                 return await interaction.editReply('No missing looted items found.');
             }
 
-            const missingList = missingItems
-                .map(item => `${item.item}: Looted ${item.amount_looted}, Deposited ${item.amount_deposited}`)
+            const missingList = missingEntries
+                .map(entry => `**Player:** ${entry.player} | **Item:** ${entry.item} | **Quantity:** ${entry.quantity}`)
                 .join('\n');
 
             await interaction.editReply(`**Missing Looted Items:**\n${missingList.slice(0, 2000)}`);
