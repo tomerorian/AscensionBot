@@ -59,7 +59,7 @@ export default {
 
             // Ensure we maintain all original fields from looted
             const lootedEntries = lootedData.map(item => ({
-                player: item['player_name'],
+                player: item['looted_by__name'],
                 item: item['item_name'],
                 quantity: item['quantity']
             }));
