@@ -68,7 +68,7 @@ export default {
             const depositedItems = new Set(depositedData.map(item => item['Item']));
 
             // Filter only entries that are missing from the deposited list
-            const missingEntries = lootedEntries.filter(entry => !depositedItems.has(entry.item));
+            const missingEntries = lootedEntries.filter(entry => !entry.item.contain("Trash") && !depositedItems.has(entry.item));
 
             if (missingEntries.length === 0) {
                 return await interaction.editReply('No missing looted items found.');
