@@ -61,6 +61,7 @@ export default {
             const lootedEntries = lootedData.map(item => ({
                 player: item['looted_by__name'],
                 item: item['item_name'],
+                itemId: item['item_id'],
                 quantity: item['quantity']
             }));
 
@@ -74,7 +75,7 @@ export default {
             }
 
             const missingList = missingEntries
-                .map(entry => `${entry.player} | ${entry.item}${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
+                .map(entry => `${entry.player} | ${entry.itemId}${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
                 .join('\n');
 
             await interaction.editReply(missingList.slice(0, 2000));
