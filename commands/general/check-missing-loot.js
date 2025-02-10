@@ -74,10 +74,10 @@ export default {
             }
 
             const missingList = missingEntries
-                .map(entry => `**Player:** ${entry.player} | **Item:** ${entry.item} | **Quantity:** ${entry.quantity}`)
+                .map(entry => `${entry.player} | ${entry.item}${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
                 .join('\n');
 
-            await interaction.editReply(`**Missing Looted Items:**\n${missingList}`.slice(0, 2000));
+            await interaction.editReply(missingList.slice(0, 2000));
         } catch (error) {
             console.error("Error processing loot logs:", error);
             await interaction.editReply('An error occurred while processing the files.');
