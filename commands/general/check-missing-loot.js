@@ -6,7 +6,7 @@ import path from 'path';
 export default {
     data: new SlashCommandBuilder()
         .setName('check-missing-loot')
-        .setDescription('Checks for missing looted items that were not deposited, showing who looted them.')
+        .setDescription('Lists all looted items that were not deposited.')
         .addAttachmentOption(option =>
             option
                 .setName('looted')
@@ -58,7 +58,6 @@ export default {
             let depositedData = await parseCSV(depositedFilePath, '\t');
 
             lootedData = lootedData.map(item => ({
-                player: item['player_name'],
                 item: item['item_name'],
                 amount: parseInt(item['quantity'], 10) || 0
             }));
@@ -68,12 +67,10 @@ export default {
                 amount: parseInt(item['Amount'], 10) || 0
             }));
 
-            // Track who looted what
-            const lootedSummary = {};
-            for (const { player, item, amount } of lootedData) {
-                if (!lootedSummary[item]) lootedSummary[item] = {};
-                lootedSummary[item][player] = (lootedSummary[item][player] || 0) + amount;
-            }
+            const lootedSummary = lootedData.reduce((acc, { item, amount }) => {
+                acc[item] = (acc[item] || 0) + amount;
+                return acc;
+            }, {});
 
             const depositedSummary = depositedData.reduce((acc, { item, amount }) => {
                 acc[item] = (acc[item] || 0) + amount;
@@ -81,22 +78,22 @@ export default {
             }, {});
 
             const missingItems = Object.keys(lootedSummary)
-                .filter(item => {
-                    const lootedTotal = Object.values(lootedSummary[item]).reduce((sum, qty) => sum + qty, 0);
-                    return lootedTotal > (depositedSummary[item] || 0);
-                })
-                .map(item => {
-                    const missingByPlayer = Object.entries(lootedSummary[item])
-                        .map(([player, amount]) => `- ${player}: ${amount}`)
-                        .join('\n');
-                    return `**${item}**:\n${missingByPlayer}`;
-                });
+                .filter(item => lootedSummary[item] > (depositedSummary[item] || 0))
+                .map(item => ({
+                    item,
+                    amount_looted: lootedSummary[item],
+                    amount_deposited: depositedSummary[item] || 0
+                }));
 
             if (missingItems.length === 0) {
                 return await interaction.editReply('No missing looted items found.');
             }
 
-            await interaction.editReply(`**Missing Looted Items:**\n${missingItems.join('\n').slice(0, 2000)}`);
+            const missingList = missingItems
+                .map(item => `${item.item}: Looted ${item.amount_looted}, Deposited ${item.amount_deposited}`)
+                .join('\n');
+
+            await interaction.editReply(`**Missing Looted Items:**\n${missingList.slice(0, 2000)}`);
         } catch (error) {
             console.error("Error processing loot logs:", error);
             await interaction.editReply('An error occurred while processing the files.');
