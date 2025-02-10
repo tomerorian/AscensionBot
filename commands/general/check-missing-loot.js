@@ -75,7 +75,7 @@ export default {
             }
 
             const missingList = missingEntries
-                .map(entry => `${entry.player} | ${entry.itemId}${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
+                .map(entry => `${entry.player} | ${entry.item} | ${entry.itemId} ${entry.quantity > 1 ? ` x ${entry.quantity}` : ''}`)
                 .join('\n');
 
             await interaction.editReply(missingList.slice(0, 2000));
