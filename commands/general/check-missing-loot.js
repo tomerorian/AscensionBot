@@ -6,7 +6,7 @@ import path from 'path';
 export default {
     data: new SlashCommandBuilder()
         .setName('check-missing-loot')
-        .setDescription('Lists all looted items that were not deposited, preserving all details.')
+        .setDescription('Lists all looted items that were not deposited')
         .addAttachmentOption(option =>
             option
                 .setName('looted')
@@ -75,7 +75,8 @@ export default {
 
             const missingList = missingEntries
                 .map(entry => `**Player:** ${entry.player} | **Item:** ${entry.item} | **Quantity:** ${entry.quantity}`)
-                .join('\n');
+                .join('\n')
+                .slice(0, 2000);
 
             await interaction.editReply(`**Missing Looted Items:**\n${missingList.slice(0, 2000)}`);
         } catch (error) {
