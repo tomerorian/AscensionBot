@@ -1,4 +1,4 @@
-﻿import { SlashCommandBuilder } from 'discord.js';
+﻿import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
 import fs from 'fs';
 import csv from 'csv-parser';
 import path from 'path';
@@ -57,7 +57,6 @@ export default {
             let withdrawnData = await parseCSV(withdrawnFilePath, '\t');
             let depositedData = await parseCSV(depositedFilePath, '\t');
 
-            // Normalize data to ensure fields are consistent
             const normalizeEntry = (entry) => ({
                 date: (entry['Date'] || ''),
                 player: (entry['Player'] || ''),
@@ -69,24 +68,19 @@ export default {
 
             const createKey = (entry) => `${entry.player}-${entry.item}-${entry.enchantment}-${entry.quality}`;
 
-            // Convert data into a normalized list
             const withdrawnEntries = withdrawnData.map(normalizeEntry);
             const depositedEntries = depositedData.map(normalizeEntry);
 
-            // Aggregate withdrawn amounts by key (negative amounts)
             const withdrawnMap = new Map();
             withdrawnEntries.forEach(entry => {
                 if (entry.date === 'Date' || entry.item === "Trash") return;
-                
                 const key = createKey(entry);
-                withdrawnMap.set(key, (withdrawnMap.get(key) || 0) + Math.abs(entry.amount)); // Convert to positive
+                withdrawnMap.set(key, (withdrawnMap.get(key) || 0) + Math.abs(entry.amount));
             });
 
-            // Aggregate deposited amounts by key
             const depositedMap = new Map();
             depositedEntries.forEach(entry => {
                 if (entry.date === 'Date' || entry.item === "Trash") return;
-                
                 const key = createKey(entry);
                 depositedMap.set(key, (depositedMap.get(key) || 0) + entry.amount);
             });
@@ -117,7 +111,15 @@ export default {
                 formatList('Extra Items', extraItems)
             ].filter(Boolean).join('\n\n');
 
-            await interaction.editReply(response.slice(0, 2000) || 'No discrepancies found.');
+            if (response.length <= 2000) {
+                await interaction.editReply(response || 'No discrepancies found.');
+            } else {
+                const logFilePath = path.join('/tmp', 'chest-comparison.txt');
+                fs.writeFileSync(logFilePath, response);
+                const attachment = new AttachmentBuilder(logFilePath, { name: 'chest-comparison.txt' });
+
+                await interaction.editReply({ content: 'The comparison results exceeded Discord’s message limit. See the attached file.', files: [attachment] });
+            }
         } catch (error) {
             console.error("Error processing chest logs:", error);
             await interaction.editReply('An error occurred while processing the files.');
