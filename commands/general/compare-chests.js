@@ -59,6 +59,7 @@ export default {
 
             // Normalize data to ensure fields are consistent
             const normalizeEntry = (entry) => ({
+                date: (entry['Date'] || ''),
                 player: (entry['Player'] || ''),
                 item: (entry['Item'] || ''),
                 amount: parseInt(entry['Amount'], 10) || 0,
@@ -75,6 +76,8 @@ export default {
             // Aggregate withdrawn amounts by key (negative amounts)
             const withdrawnMap = new Map();
             withdrawnEntries.forEach(entry => {
+                if (entry.date === 'Date' || entry.item === "Trash") return;
+                
                 const key = createKey(entry);
                 withdrawnMap.set(key, (withdrawnMap.get(key) || 0) + Math.abs(entry.amount)); // Convert to positive
             });
@@ -82,6 +85,8 @@ export default {
             // Aggregate deposited amounts by key
             const depositedMap = new Map();
             depositedEntries.forEach(entry => {
+                if (entry.date === 'Date' || entry.item === "Trash") return;
+                
                 const key = createKey(entry);
                 depositedMap.set(key, (depositedMap.get(key) || 0) + entry.amount);
             });
