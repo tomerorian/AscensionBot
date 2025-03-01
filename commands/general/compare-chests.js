@@ -63,7 +63,7 @@ export default {
                 item: (entry['Item'] || ''),
                 amount: parseInt(entry['Amount'], 10) || 0,
                 enchantment: (entry['Enchantment'] || ''),
-                quality: (entry['Quality'] || '')
+                quality: qualityMap[entry['Quality']] || 'Normal'
             });
 
             const createKey = (entry) => `${entry.player}-${entry.item}-${entry.enchantment}-${entry.quality}`;
@@ -93,15 +93,15 @@ export default {
             for (const [key, withdrawnAmount] of withdrawnMap.entries()) {
                 const depositedAmount = depositedMap.get(key) || 0;
                 if (withdrawnAmount > depositedAmount) {
-                    missingItems.push(`${key.replace(/-/g, ' | ')} x ${withdrawnAmount - depositedAmount}`);
+                    missingItems.push(formatItemOutput(key, withdrawnAmount - depositedAmount));
                 } else if (depositedAmount > withdrawnAmount) {
-                    excessiveItems.push(`${key.replace(/-/g, ' | ')} x ${depositedAmount - withdrawnAmount}`);
+                    excessiveItems.push(formatItemOutput(key, depositedAmount - withdrawnAmount));
                 }
                 depositedMap.delete(key);
             }
 
             for (const [key, depositedAmount] of depositedMap.entries()) {
-                unexpectedItems.push(`${key.replace(/-/g, ' | ')} x ${depositedAmount}`);
+                unexpectedItems.push(formatItemOutput(key, depositedAmount));
             }
 
             const formatList = (title, list) => list.length ? `**${title}**\n${list.join('\n')}` : '';
@@ -118,4 +118,18 @@ export default {
             await interaction.editReply('An error occurred while processing the files.');
         }
     },
+};
+
+// Map quality numbers to their real names
+const qualityMap = {
+    '0': 'Normal',
+    '1': 'Good',
+    '2': 'Outstanding',
+    '3': 'Excellent',
+    '4': 'Masterpiece'
+};
+
+const formatItemOutput = (key, amount) => {
+    const [player, item, enchantment, quality] = key.split('-');
+    return `${player} | ${item}.${enchantment} (${quality}) x ${amount}`;
 };
