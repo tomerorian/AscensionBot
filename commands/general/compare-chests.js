@@ -9,14 +9,14 @@ export default {
         .setDescription('Compares two chest inventories and lists missing, excessive, and unexpected items.')
         .addAttachmentOption(option =>
             option
-                .setName('looted')
-                .setDescription('CSV file of the first chest inventory')
+                .setName('withdrawn')
+                .setDescription('CSV file of withdrawn items (negative amounts)')
                 .setRequired(true)
         )
         .addAttachmentOption(option =>
             option
                 .setName('deposited')
-                .setDescription('CSV file of the second chest inventory')
+                .setDescription('CSV file of deposited items')
                 .setRequired(true)
         ),
 
@@ -24,23 +24,23 @@ export default {
         await interaction.deferReply({ ephemeral: true });
 
         try {
-            const lootedAttachment = interaction.options.getAttachment('looted');
+            const withdrawnAttachment = interaction.options.getAttachment('withdrawn');
             const depositedAttachment = interaction.options.getAttachment('deposited');
 
-            if (!lootedAttachment || !depositedAttachment) {
+            if (!withdrawnAttachment || !depositedAttachment) {
                 return await interaction.editReply('Both chest inventory files must be provided.');
             }
 
-            const lootedFilePath = path.join('/tmp', 'looted.csv');
+            const withdrawnFilePath = path.join('/tmp', 'withdrawn.csv');
             const depositedFilePath = path.join('/tmp', 'deposited.csv');
 
-            const lootedFile = await fetch(lootedAttachment.url);
+            const withdrawnFile = await fetch(withdrawnAttachment.url);
             const depositedFile = await fetch(depositedAttachment.url);
 
-            const lootedBuffer = await lootedFile.arrayBuffer();
+            const withdrawnBuffer = await withdrawnFile.arrayBuffer();
             const depositedBuffer = await depositedFile.arrayBuffer();
 
-            fs.writeFileSync(lootedFilePath, Buffer.from(lootedBuffer));
+            fs.writeFileSync(withdrawnFilePath, Buffer.from(withdrawnBuffer));
             fs.writeFileSync(depositedFilePath, Buffer.from(depositedBuffer));
 
             const parseCSV = (filePath, delimiter = ',') => {
@@ -54,29 +54,29 @@ export default {
                 });
             };
 
-            let lootedData = await parseCSV(lootedFilePath, '\t');
+            let withdrawnData = await parseCSV(withdrawnFilePath, '\t');
             let depositedData = await parseCSV(depositedFilePath, '\t');
 
             // Normalize data to ensure fields are consistent
             const normalizeEntry = (entry) => ({
-                player: entry['Player'] || '',
-                item: entry['Item'] || '',
+                player: (entry['Player'] || ''),
+                item: (entry['Item'] || ''),
                 amount: parseInt(entry['Amount'], 10) || 0,
-                enchantment: entry['Enchantment'] || '',
-                quality: entry['Quality'] || ''
+                enchantment: (entry['Enchantment'] || ''),
+                quality: (entry['Quality'] || '')
             });
 
             const createKey = (entry) => `${entry.player}-${entry.item}-${entry.enchantment}-${entry.quality}`;
 
             // Convert data into a normalized list
-            const lootedEntries = lootedData.map(normalizeEntry);
+            const withdrawnEntries = withdrawnData.map(normalizeEntry);
             const depositedEntries = depositedData.map(normalizeEntry);
 
-            // Aggregate looted amounts by key
-            const lootedMap = new Map();
-            lootedEntries.forEach(entry => {
+            // Aggregate withdrawn amounts by key (negative amounts)
+            const withdrawnMap = new Map();
+            withdrawnEntries.forEach(entry => {
                 const key = createKey(entry);
-                lootedMap.set(key, (lootedMap.get(key) || 0) + entry.amount);
+                withdrawnMap.set(key, (withdrawnMap.get(key) || 0) + Math.abs(entry.amount)); // Convert to positive
             });
 
             // Aggregate deposited amounts by key
@@ -88,20 +88,20 @@ export default {
 
             const missingItems = [];
             const excessiveItems = [];
-            const extraItems = [];
+            const unexpectedItems = [];
 
-            for (const [key, lootedAmount] of lootedMap.entries()) {
+            for (const [key, withdrawnAmount] of withdrawnMap.entries()) {
                 const depositedAmount = depositedMap.get(key) || 0;
-                if (lootedAmount > depositedAmount) {
-                    missingItems.push(`${key.replace(/-/g, ' | ')}: Missing ${lootedAmount - depositedAmount}`);
-                } else if (depositedAmount > lootedAmount) {
-                    excessiveItems.push(`${key.replace(/-/g, ' | ')}: Excessive ${depositedAmount - lootedAmount}`);
+                if (withdrawnAmount > depositedAmount) {
+                    missingItems.push(`${key.replace(/-/g, ' | ')} x ${withdrawnAmount - depositedAmount}`);
+                } else if (depositedAmount > withdrawnAmount) {
+                    excessiveItems.push(`${key.replace(/-/g, ' | ')} x ${depositedAmount - withdrawnAmount}`);
                 }
                 depositedMap.delete(key);
             }
 
             for (const [key, depositedAmount] of depositedMap.entries()) {
-                extraItems.push(`${key.replace(/-/g, ' | ')}: Extra ${depositedAmount}`);
+                unexpectedItems.push(`${key.replace(/-/g, ' | ')} x ${depositedAmount}`);
             }
 
             const formatList = (title, list) => list.length ? `**${title}**\n${list.join('\n')}` : '';
@@ -109,7 +109,7 @@ export default {
             const response = [
                 formatList('Missing Items', missingItems),
                 formatList('Excessive Items', excessiveItems),
-                formatList('Extra Items', extraItems)
+                formatList('Unexpected Deposited Items', unexpectedItems)
             ].filter(Boolean).join('\n\n');
 
             await interaction.editReply(response.slice(0, 2000) || 'No discrepancies found.');
