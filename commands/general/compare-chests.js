@@ -6,7 +6,7 @@ import path from 'path';
 export default {
     data: new SlashCommandBuilder()
         .setName('compare-chests')
-        .setDescription('Compares two chest inventories and lists missing, excessive, and unexpected items.')
+        .setDescription('Compares two chest inventories and lists missing, excessive, and extra items.')
         .addAttachmentOption(option =>
             option
                 .setName('withdrawn')
@@ -63,7 +63,7 @@ export default {
                 item: (entry['Item'] || ''),
                 amount: parseInt(entry['Amount'], 10) || 0,
                 enchantment: (entry['Enchantment'] || ''),
-                quality: qualityMap[entry['Quality']] || 'Normal'
+                quality: qualityMap[entry['Quality']] || 'None'
             });
 
             const createKey = (entry) => `${entry.player}-${entry.item}-${entry.enchantment}-${entry.quality}`;
@@ -88,7 +88,7 @@ export default {
 
             const missingItems = [];
             const excessiveItems = [];
-            const unexpectedItems = [];
+            const extraItems = [];
 
             for (const [key, withdrawnAmount] of withdrawnMap.entries()) {
                 const depositedAmount = depositedMap.get(key) || 0;
@@ -101,7 +101,7 @@ export default {
             }
 
             for (const [key, depositedAmount] of depositedMap.entries()) {
-                unexpectedItems.push(formatItemOutput(key, depositedAmount));
+                extraItems.push(formatItemOutput(key, depositedAmount));
             }
 
             const formatList = (title, list) => list.length ? `**${title}**\n${list.join('\n')}` : '';
@@ -109,7 +109,7 @@ export default {
             const response = [
                 formatList('Missing Items', missingItems),
                 formatList('Excessive Items', excessiveItems),
-                formatList('Unexpected Deposited Items', unexpectedItems)
+                formatList('Extra Items', extraItems)
             ].filter(Boolean).join('\n\n');
 
             await interaction.editReply(response.slice(0, 2000) || 'No discrepancies found.');
@@ -120,13 +120,13 @@ export default {
     },
 };
 
-// Map quality numbers to their real names
 const qualityMap = {
-    '0': 'Normal',
-    '1': 'Good',
-    '2': 'Outstanding',
-    '3': 'Excellent',
-    '4': 'Masterpiece'
+    '0': 'None',
+    '1': 'Normal',
+    '2': 'Good',
+    '3': 'Outstanding',
+    '4': 'Excellent',
+    '5': 'Masterpiece'
 };
 
 const formatItemOutput = (key, amount) => {
