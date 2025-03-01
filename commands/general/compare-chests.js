@@ -6,7 +6,7 @@ import path from 'path';
 export default {
     data: new SlashCommandBuilder()
         .setName('compare-chests')
-        .setDescription('Compares two chest inventories and lists missing items')
+        .setDescription('Compares two chest inventories and lists missing, excessive, and unexpected items.')
         .addAttachmentOption(option =>
             option
                 .setName('looted')
@@ -57,27 +57,62 @@ export default {
             let lootedData = await parseCSV(lootedFilePath, '\t');
             let depositedData = await parseCSV(depositedFilePath, '\t');
 
-            const lootedEntries = lootedData.map(item => ({
-                item: item['Item'],
-                amount: item['Amount'],
-                player: item['Player'],
-                enchantment: item['Enchantment'],
-                quality: item['Quality'],
-            }));
+            // Normalize data to ensure fields are consistent
+            const normalizeEntry = (entry) => ({
+                player: entry['Player'] || '',
+                item: entry['Item'] || '',
+                amount: parseInt(entry['Amount'], 10) || 0,
+                enchantment: entry['Enchantment'] || '',
+                quality: entry['Quality'] || ''
+            });
 
-            const depositedItems = new Set(depositedData.map(item => item['Item']));
+            const createKey = (entry) => `${entry.player}-${entry.item}-${entry.enchantment}-${entry.quality}`;
 
-            const missingEntries = lootedEntries.filter(entry => !entry.item.includes("Trash") && !depositedItems.has(entry.item));
+            // Convert data into a normalized list
+            const lootedEntries = lootedData.map(normalizeEntry);
+            const depositedEntries = depositedData.map(normalizeEntry);
 
-            if (missingEntries.length === 0) {
-                return await interaction.editReply('No missing items found between the chests.');
+            // Aggregate looted amounts by key
+            const lootedMap = new Map();
+            lootedEntries.forEach(entry => {
+                const key = createKey(entry);
+                lootedMap.set(key, (lootedMap.get(key) || 0) + entry.amount);
+            });
+
+            // Aggregate deposited amounts by key
+            const depositedMap = new Map();
+            depositedEntries.forEach(entry => {
+                const key = createKey(entry);
+                depositedMap.set(key, (depositedMap.get(key) || 0) + entry.amount);
+            });
+
+            const missingItems = [];
+            const excessiveItems = [];
+            const extraItems = [];
+
+            for (const [key, lootedAmount] of lootedMap.entries()) {
+                const depositedAmount = depositedMap.get(key) || 0;
+                if (lootedAmount > depositedAmount) {
+                    missingItems.push(`${key.replace(/-/g, ' | ')}: Missing ${lootedAmount - depositedAmount}`);
+                } else if (depositedAmount > lootedAmount) {
+                    excessiveItems.push(`${key.replace(/-/g, ' | ')}: Excessive ${depositedAmount - lootedAmount}`);
+                }
+                depositedMap.delete(key);
             }
 
-            const missingList = missingEntries
-                .map(entry => `${entry.player} | ${entry.item}.${entry.enchantment} ${entry.amount > 1 ? ` x ${entry.amount}` : ''} | ${entry.quality}`)
-                .join('\n');
+            for (const [key, depositedAmount] of depositedMap.entries()) {
+                extraItems.push(`${key.replace(/-/g, ' | ')}: Extra ${depositedAmount}`);
+            }
 
-            await interaction.editReply(`**Missing Items:**\n${missingList.slice(0, 2000)}`);
+            const formatList = (title, list) => list.length ? `**${title}**\n${list.join('\n')}` : '';
+
+            const response = [
+                formatList('Missing Items', missingItems),
+                formatList('Excessive Items', excessiveItems),
+                formatList('Extra Items', extraItems)
+            ].filter(Boolean).join('\n\n');
+
+            await interaction.editReply(response.slice(0, 2000) || 'No discrepancies found.');
         } catch (error) {
             console.error("Error processing chest logs:", error);
             await interaction.editReply('An error occurred while processing the files.');
