@@ -54,8 +54,8 @@ export default {
                 await member.roles.add(role);
             }
 
-            let responseMessage = `**Role Created: ${roleName}**\n\n`;
-            responseMessage += `✅ **Added to role (${matchingMembers.size}):**\n${matchingMembers.map(m => m.displayName).join(', ') || 'None'}\n\n`;
+            let responseMessage = `**Role Created: ${role}**\n\n`;
+            responseMessage += `✅ **Added to role (${matchingMembers.size}):**\n${matchingMembers.map(m => m.toString()).join(', ') || 'None'}\n\n`;
             responseMessage += `❌ **Not found in Discord (${notFoundMembers.length}):**\n${notFoundMembers.join(', ') || 'None'}\n\n`;
             responseMessage += `🚫 **Non-approved names (${nonApprovedNames.length}):**\n${nonApprovedNames.join(', ') || 'None'}`;
 
@@ -111,8 +111,17 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
     });
 
     const rows = response.data.values || [];
-    const approvedNames = rows.filter(row => row[0] === '✅').map(row => row[1]); // Approved members
-    const nonApprovedNames = rows.filter(row => row[0] !== '✅').map(row => row[1]); // Non-approved
+
+    // Ignore empty names or names that are just whitespace
+    const isValidName = (name) => name && name.trim().length > 0;
+
+    const approvedNames = rows
+        .filter(row => row[0] === '✅' && isValidName(row[1]))
+        .map(row => row[1]);
+
+    const nonApprovedNames = rows
+        .filter(row => row[0] !== '✅' && isValidName(row[1]))
+        .map(row => row[1]);
 
     return { approvedNames, nonApprovedNames };
 };
