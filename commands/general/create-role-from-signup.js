@@ -64,6 +64,7 @@ const extractSheetId = (url) => {
 // Fetches names from the Google Sheet (only those with a "V" mark)
 const fetchNamesFromSheet = async (sheetId) => {
     const auth = new google.auth.GoogleAuth({
+        keyFile: 'service-account-file.json',
         scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 
