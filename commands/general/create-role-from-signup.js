@@ -105,7 +105,6 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
     });
 
     const rows = response.data.values || [];
-    console.log(rows);
     return rows.filter(row => row[0] === '✅').map(row => row[1]); // Now correctly filtering on column M
 };
 
