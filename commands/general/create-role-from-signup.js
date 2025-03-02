@@ -95,7 +95,9 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
-    const range = `${sheetName}!N2:O`; // Column N (names) and Column O (checks)
+
+    // Update range from "N2:O" to "M2:N" to correctly fetch the V column
+    const range = `${sheetName}!M2:N`;
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
@@ -104,5 +106,6 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
 
     const rows = response.data.values || [];
     console.log(rows);
-    return rows.filter(row => row[1] === 'V').map(row => row[0]); // Only names with "V" in the next column
+    return rows.filter(row => row[0] === 'V').map(row => row[1]); // Now correctly filtering on column M
 };
+
