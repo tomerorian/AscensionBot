@@ -103,7 +103,7 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
 
     const sheets = google.sheets({ version: 'v4', auth });
 
-    const range = `${sheetName}!M2:N`; // M = V column, N = Name
+    const range = `${sheetName}!M3:N`; // M = V column, N = Name
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
