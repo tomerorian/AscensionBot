@@ -32,16 +32,18 @@ export default {
             const sheetName = gid ? await getSheetNameByGid(sheetId, gid) : 'Sheet1';
             if (!sheetName) return await interaction.editReply('Could not determine the correct sheet.');
 
-            const namesList = await fetchNamesFromSheet(sheetId, sheetName);
-            if (!namesList.length) return await interaction.editReply('No valid names found in the sheet.');
+            const { approvedNames, nonApprovedNames } = await fetchNamesFromSheet(sheetId, sheetName);
+            if (!approvedNames.length) return await interaction.editReply('No valid approved names found in the sheet.');
 
             const guild = interaction.guild;
             const members = await guild.members.fetch();
             const matchingMembers = members.filter(member =>
-                namesList.some(name => member.displayName.toLowerCase() === name.toLowerCase())
+                approvedNames.some(name => member.displayName.toLowerCase() === name.toLowerCase())
             );
 
-            if (!matchingMembers.size) return await interaction.editReply('No matching Discord members found.');
+            const notFoundMembers = approvedNames.filter(name =>
+                !matchingMembers.some(member => member.displayName.toLowerCase() === name.toLowerCase())
+            );
 
             let role = guild.roles.cache.find(r => r.name === roleName);
             if (!role) {
@@ -52,7 +54,12 @@ export default {
                 await member.roles.add(role);
             }
 
-            await interaction.editReply(`Role **${roleName}** created and assigned to ${matchingMembers.size} members.`);
+            let responseMessage = `**Role Created: ${roleName}**\n\n`;
+            responseMessage += `✅ **Added to role (${matchingMembers.size}):**\n${matchingMembers.map(m => m.displayName).join(', ') || 'None'}\n\n`;
+            responseMessage += `❌ **Not found in Discord (${notFoundMembers.length}):**\n${notFoundMembers.join(', ') || 'None'}\n\n`;
+            responseMessage += `🚫 **Non-approved names (${nonApprovedNames.length}):**\n${nonApprovedNames.join(', ') || 'None'}`;
+
+            await interaction.editReply(responseMessage);
         } catch (error) {
             console.error('Error creating role:', error);
             await interaction.editReply('An error occurred while creating the role.');
@@ -87,7 +94,7 @@ const getSheetNameByGid = async (spreadsheetId, gid) => {
     return sheet ? sheet.properties.title : null; // Return sheet name
 };
 
-// Fetches names from the correct sheet tab
+// Fetches approved and non-approved names from the correct sheet tab
 const fetchNamesFromSheet = async (sheetId, sheetName) => {
     const auth = new google.auth.GoogleAuth({
         keyFile: 'service-account-file.json',
@@ -96,8 +103,7 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
 
     const sheets = google.sheets({ version: 'v4', auth });
 
-    // Update range from "N2:O" to "M2:N" to correctly fetch the V column
-    const range = `${sheetName}!M2:N`;
+    const range = `${sheetName}!M2:N`; // M = V column, N = Name
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
@@ -105,6 +111,8 @@ const fetchNamesFromSheet = async (sheetId, sheetName) => {
     });
 
     const rows = response.data.values || [];
-    return rows.filter(row => row[0] === '✅').map(row => row[1]); // Now correctly filtering on column M
-};
+    const approvedNames = rows.filter(row => row[0] === '✅').map(row => row[1]); // Approved members
+    const nonApprovedNames = rows.filter(row => row[0] !== '✅').map(row => row[1]); // Non-approved
 
+    return { approvedNames, nonApprovedNames };
+};
