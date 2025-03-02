@@ -25,9 +25,14 @@ export default {
             const sheetLink = interaction.options.getString('sheet_link');
 
             const sheetId = extractSheetId(sheetLink);
+            const gid = extractGid(sheetLink);
+
             if (!sheetId) return await interaction.editReply('Invalid Google Sheets link.');
 
-            const namesList = await fetchNamesFromSheet(sheetId);
+            const sheetName = gid ? await getSheetNameByGid(sheetId, gid) : 'Sheet1';
+            if (!sheetName) return await interaction.editReply('Could not determine the correct sheet.');
+
+            const namesList = await fetchNamesFromSheet(sheetId, sheetName);
             if (!namesList.length) return await interaction.editReply('No valid names found in the sheet.');
 
             const guild = interaction.guild;
@@ -61,15 +66,36 @@ const extractSheetId = (url) => {
     return match ? match[1] : null;
 };
 
-// Fetches names from the Google Sheet (only those with a "V" mark)
-const fetchNamesFromSheet = async (sheetId) => {
+// Extracts the GID (sheet/tab ID) from a Google Sheets link
+const extractGid = (url) => {
+    const match = url.match(/gid=(\d+)/);
+    return match ? match[1] : null;
+};
+
+// Fetches the correct sheet name using the GID
+const getSheetNameByGid = async (spreadsheetId, gid) => {
     const auth = new google.auth.GoogleAuth({
         keyFile: 'service-account-file.json',
         scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
-    const range = 'N2:O'; // Column N (names) and Column O (checks)
+
+    const response = await sheets.spreadsheets.get({ spreadsheetId });
+    const sheet = response.data.sheets.find(sheet => sheet.properties.sheetId.toString() === gid);
+
+    return sheet ? sheet.properties.title : null; // Return sheet name
+};
+
+// Fetches names from the correct sheet tab
+const fetchNamesFromSheet = async (sheetId, sheetName) => {
+    const auth = new google.auth.GoogleAuth({
+        keyFile: 'service-account-file.json',
+        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    });
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const range = `${sheetName}!N2:O`; // Column N (names) and Column O (checks)
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
@@ -77,6 +103,5 @@ const fetchNamesFromSheet = async (sheetId) => {
     });
 
     const rows = response.data.values || [];
-    console.log(rows);
     return rows.filter(row => row[1] === 'V').map(row => row[0]); // Only names with "V" in the next column
 };
