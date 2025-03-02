@@ -77,5 +77,6 @@ const fetchNamesFromSheet = async (sheetId) => {
     });
 
     const rows = response.data.values || [];
+    console.log(rows);
     return rows.filter(row => row[1] === 'V').map(row => row[0]); // Only names with "V" in the next column
 };
