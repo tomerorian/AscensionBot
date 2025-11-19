@@ -22,14 +22,14 @@ export default {
         .addNumberOption(option =>
             option
                 .setName('tax')
-                .setDescription('The tax percentage to apply (default is 35%)')
+                .setDescription('The tax percentage to apply (default is 30%)')
                 .setRequired(false)
         ),
 
     async execute(interaction) {
         let partyName = interaction.options.getString('party');
         const amount = interaction.options.getNumber('amount');
-        const taxPercentage = interaction.options.getNumber('tax') ?? 35;
+        const taxPercentage = interaction.options.getNumber('tax') ?? 30;
         const serverId = interaction.guildId;
         const requesterId = interaction.user.id;
 
