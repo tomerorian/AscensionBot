@@ -73,6 +73,10 @@ export default {
             });
             
             await sendLogMessage(interaction, message);
+            
+            const fineLogMessage = `<@${interaction.user.id}> issued a fine:\n*   Player: <@${user.id}>\n*   Reason: ${reason}\n*   Amount: ${amount.toLocaleString()} ${consts.CoinEmoji}`;
+            
+            await sendLogMessage(interaction, fineLogMessage, consts.FineLogChannelId);
         } catch (error) {
             console.log(error.message);
             await interaction.reply({ content: 'An error occurred while trying to fine the user.', ephemeral: true });
