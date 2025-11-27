@@ -59,7 +59,7 @@ export default {
                 comment: comment
             });
             
-            const message = `<@${interaction.user.id}> cleared ${balance.toLocaleString()} ${consts.CoinEmoji} from <@${user.id}>. New balance is 0 ${consts.CoinEmoji}`;
+            const message = `<@${interaction.user.id}> cleared ${balance.toLocaleString()} ${consts.CoinEmoji} from <@${user.id}>. New balance is 0 ${consts.CoinEmoji}${comment ? ` (Comment: ${comment})` : ''}`;
             await interaction.reply({
                 content: message,
                 ephemeral: true

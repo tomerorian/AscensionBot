@@ -66,7 +66,7 @@ export default {
                 comment: comment
             });
 
-            const message = `<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}`;
+            const message = `<@${interaction.user.id}> added ${amount.toLocaleString()} ${consts.CoinEmoji} to <@${user.id}>. New balance is ${newBalance.toLocaleString()} ${consts.CoinEmoji}${comment ? ` (Comment: ${comment})` : ''}`;
             await interaction.reply({
                 content: message,
                 ephemeral: true
