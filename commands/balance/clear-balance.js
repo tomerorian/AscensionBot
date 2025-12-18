@@ -26,6 +26,8 @@ export default {
         const user = interaction.options.getUser('user');
         const comment = interaction.options.getString('comment') || null;
 
+        return await interaction.reply({ content: 'Free trial over. This command is unavailable. Please consider purchasing our premium plan for unlimited access.', ephemeral: true });
+
         let balance = 0;
 
         try {
