@@ -27,8 +27,6 @@ export default {
             });
         }
 
-        return await interaction.reply({ content: 'Free trial over. This command is unavailable. Please consider purchasing our premium plan for unlimited access.', ephemeral: true });
-
         await interaction.deferReply({ ephemeral: true });
 
         try {

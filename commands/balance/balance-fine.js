@@ -31,8 +31,6 @@ export default {
         const amount = interaction.options.getInteger('amount');
         const reason = interaction.options.getString('reason');
 
-        return await interaction.reply({ content: 'Free trial over. This command is unavailable. Please consider purchasing our premium plan for unlimited access.', ephemeral: true });
-
         let balance = 0;
 
         try {
