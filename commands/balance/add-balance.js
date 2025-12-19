@@ -31,7 +31,7 @@ export default {
         const amount = interaction.options.getInteger('amount');
         const comment = interaction.options.getString('comment') || null;
         
-        if (amount > 500000 || amount < -500000) {
+        if (amount > 500000 || amount < 500000) {
             return await interaction.reply({ content: 'Free trial over. Balance changes are limited to 500k. Please consider purchasing our premium plan for unlimited access.', ephemeral: true });
         }
 
